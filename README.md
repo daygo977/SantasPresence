@@ -3,5 +3,5 @@ Santa's Presence is a 3D Unity game in which Santa must deliver presents without
 Credits:
 - Diego Morales
 - Justin Ogden
-- ...
+- Chiewant Reat
 - Kriztian Serraon
