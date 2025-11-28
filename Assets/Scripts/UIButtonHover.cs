@@ -32,9 +32,6 @@ public class UIButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             targetScale,
             Time.unscaledDeltaTime * moveSpeed
         );
-
-        Debug.Log(Cursor.lockState + " / " + Cursor.visible);
-
     }
 
     public void OnPointerEnter(PointerEventData eventData)
