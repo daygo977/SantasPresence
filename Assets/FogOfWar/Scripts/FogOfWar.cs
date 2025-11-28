@@ -1,17 +1,29 @@
+using UnityEditor.EditorTools;
 using UnityEngine;
+using UnityEngine.UIElements;
 
+/// <summary>
+/// Fog of war volume, surrounds level/map as a cube like shape.
+/// Will store 2D "history" texture in XZ (top-down) and remove
+/// cylinders of visibility from floor to ceilling around the player.
+/// Once area/pixel is revealed, it will stay clear (no re-fogging).
+/// </summary>
 [RequireComponent(typeof(Renderer))]
 public class FogOfWar : MonoBehaviour
 {
-    [Header("World bounds covered by fog")]
-    public Vector2 worldBottomLeft = new Vector2(-50f, -50f);   //X and Z
-    public Vector2 worldSize = new Vector2(100f, 100f);         //width (x), height (z)
+    [Header("Debug (auto-filled)")]
+    [SerializeField] private Vector2 worldBottomLeft; //X, Z minimum of the fog volume
+    [SerializeField] private Vector2 worldSize;       //width/height of the fog volume in X,Z
 
-    [Header("Texture settings")]
-    public int textureSize = 256;
+    [Header("Fog volume settings")]
+    [Tooltip("Resolution of the fog texture (width = height). Higher is sharper, but more computation")]
+    public int textureSize = 512;
+
+    [Tooltip("Reveal radius in world units (XZ plane)")]
     public float revealRadius = 5f;
 
     [Header("Player")]
+    [Tooltip("Transform to reveal fog around player (usually root)")]
     public Transform player;
 
     private Texture2D fogTexture;
@@ -19,25 +31,42 @@ public class FogOfWar : MonoBehaviour
     private Renderer rend;
     private bool pixelsChanged = false;
 
-    void Start()
+    void Awake()
     {
         rend = GetComponent<Renderer>();
-        //Create (only alpha) fog texture that will be manually chnaged at runtime
+    }
+
+    void Start()
+    {
+        //Get world-space bounds of fog cube.
+        //We only get X and Z, Y is not needed
+        var bounds = rend.bounds;
+        worldBottomLeft = new Vector2(bounds.min.x, bounds.min.z);
+        worldSize = new Vector2(bounds.size.x, bounds.size.z);
+
+        //Create alpha-only texture to store fog mask
         fogTexture = new Texture2D(textureSize, textureSize, TextureFormat.Alpha8, false);
-        fogTexture.wrapMode = TextureWrapMode.Clamp; //Does not tile, it clamps edges
+        fogTexture.wrapMode = TextureWrapMode.Clamp;
 
         pixels = new Color32[textureSize * textureSize];
 
-        //Start with 255 alpha, which means fully fogged
+        //Start fully fogged, alpha = 255
         for (int i = 0; i < pixels.Length; i++)
+        {
             pixels[i] = new Color32(0, 0, 0, 255);
+        }
 
-        //Upload initial pixel data to GPU
         fogTexture.SetPixels32(pixels);
-        fogTexture.Apply(); 
+        fogTexture.Apply();
 
-        //Use this (texture) as the material for the fog
-        rend.material.mainTexture = fogTexture;
+        //Give the material texture and world bounds
+        //Shader will use these to map world XZ to UV to alpha
+        var mat = rend.material;
+        mat.mainTexture = fogTexture;
+
+        mat.SetVector("_WorldBottomLeft", new Vector4(worldBottomLeft.x, worldBottomLeft.y, 0f, 0f));
+        mat.SetVector("_WorldSize", new Vector4(worldSize.x, worldSize.y, 0f, 0f));
+
     }
 
     void Update()
@@ -59,12 +88,11 @@ public class FogOfWar : MonoBehaviour
 
     /// <summary>
     /// Clears/Reveals fog in circular area around the set world position (player).
-    /// This function will convert the world position to fog texture space, then finds the pixel coordinates (of player),
-    /// and then it change the alpha of those pixels (in the radius, of player) to 0, so that the fog becomes clear.
+    /// Creates a vertical cylinder of visibilty from the floor to ceilling of the fog cube at that position
     /// 
     /// Once the are is revealed, it stays revealed, which leads to a revealed path.
     /// </summary>
-    void RevealAtPosition(Vector3 worldPos)
+    private void RevealAtPosition(Vector3 worldPos)
     {
         //Convert the world XZ positions into UV coordinates
         //UV is a normalized 0 to 1 range across the fog texture
@@ -81,10 +109,13 @@ public class FogOfWar : MonoBehaviour
         int py = Mathf.RoundToInt(v * (textureSize - 1));
 
         //Convert reveal radius (in world units) to radius in texture pixels
-        float TPixPerWorldX  =(float)textureSize / worldSize.x;
-        float TPixPerWorldY  =(float)textureSize / worldSize.y;
+        float TPixPerWorldX  = (float)textureSize / worldSize.x;
+        float TPixPerWorldY  = (float)textureSize / worldSize.y;
         int radiusX = Mathf.CeilToInt(revealRadius * TPixPerWorldX);
         int radiusY = Mathf.CeilToInt(revealRadius * TPixPerWorldY);
+
+        if (radiusX <= 0 || radiusY <= 0)
+            return;
 
         //Reveal circle is centered at px and py, with radiusX and radiusY in pixels.
         //In worse case, any pixel that could be inside that cicle must be between:
