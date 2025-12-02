@@ -68,6 +68,42 @@ public class Fog : MonoBehaviour
         int sqrRadius = radius * radius;
 
         //Paint white circle, visited
-        for (int )
+        for (int y = -radius; y <= radius; y++)
+        {
+            int py = centerY + y;
+            if (py < 0 || py >= textureSize)
+                continue;
+            
+            int yy = y*y;
+
+            for (int x = -radius; x <= radius; x++)
+            {
+                int px = centerX + x;
+                if (px < 0 || px >= textureSize)
+                    continue;
+
+                int xx = x*x;
+                if (xx + yy >sqrRadius)
+                    //Outside circle
+                    continue;
+
+                int idx = px + py * textureSize;
+                if (pixels[idx].r < 1f)
+                {
+                    pixels[idx].r = 1f;     //mark as visited
+                }
+            }
+        }
+        fogTexture.SetPixels(pixels);
+        fogTexture.Apply(false);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.cyan;
+        Vector3 min = new Vector3(worldMin.x, 0f, worldMin.y);
+        Vector3 max = new Vector3(worldMax.x, 0f, worldMax.y);
+        Vector3 size = max-min;
+        Gizmos.DrawWireCube(min + size * 0.5f, new Vector3(size.x, 0f, size.y));
     }
 }
