@@ -62,4 +62,10 @@ MonoBehaviour:
   giftsPlanted: 0
   totalTrees: 0
   giftsText: {fileID: 0}
+  gameHud: {fileID: 0}
   gameWinPanel: {fileID: 0}
+  hudTimerText: {fileID: 0}
+  finalTimeText: {fileID: 0}
+  sfxSource: {fileID: 0}
+  cheeringSFX: {fileID: 8300000, guid: e08861f1981beac498b7c91e2673d453, type: 3}
+  hohohoSFX: {fileID: 8300000, guid: da8c9fab3420dd44399c6a71ae24259c, type: 3}
