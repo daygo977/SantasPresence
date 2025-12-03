@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1691626894436040179}
   - component: {fileID: 8345471397527936038}
+  - component: {fileID: 4315653263170646053}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -46,3 +47,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 0}
   optionsMenu: {fileID: 0}
+--- !u!114 &4315653263170646053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5761060189905642346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb7dbee1e3c5f534bb0a415b6a105d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  giftsPlanted: 0
+  totalTrees: 0
+  giftsText: {fileID: 0}
+  gameWinPanel: {fileID: 0}

@@ -15,6 +15,8 @@ public class HoldToInteract : MonoBehaviour
     {
         uiObject.SetActive(false); // Initially hidden
         progressSlider.value = 0f; // Initially 0 for slider
+
+        GameManager.Instance.RegisterTree();
     }
 
     void Update()
@@ -48,10 +50,12 @@ public class HoldToInteract : MonoBehaviour
 
     private void CompleteInteraction()
     {
-        Debug.Log("Interaction complete!");
         canPlant = false; // We can no longer plant more presents under this tree
         uiObject.SetActive(false); // Hide UI panel now
         playerInside = false;
+
+        GameManager.Instance.PlantGift();
+        Debug.Log("Tree planted!");
     }
 
     private void OnTriggerEnter(Collider other)

@@ -180,8 +180,8 @@ MonoBehaviour:
   hoverScale: 1.4
   moveSpeed: 10
   audioSource: {fileID: 2067949031}
-  hoverClip: {fileID: 0}
-  clickClip: {fileID: 0}
+  hoverClip: {fileID: 8300000, guid: e9525a6ad58a2b4479d4c6e554934ed2, type: 3}
+  clickClip: {fileID: 8300000, guid: 0b1c880302a5a4246aea55c1530dae83, type: 3}
   canClick: 0
 --- !u!114 &84550587
 MonoBehaviour:
@@ -409,7 +409,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000061035156}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &272526236
@@ -595,7 +595,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: LOGO GOES HERE
+  m_text: SANTA'S PRESENCE
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0eccbc8ed1e7976469c4e8246987e5d2, type: 2}
   m_sharedMaterial: {fileID: 4844193515951270748, guid: 0eccbc8ed1e7976469c4e8246987e5d2,
@@ -623,8 +623,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 42
-  m_fontSizeBase: 42
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1075,8 +1075,8 @@ MonoBehaviour:
   hoverScale: 1.4
   moveSpeed: 10
   audioSource: {fileID: 2067949031}
-  hoverClip: {fileID: 0}
-  clickClip: {fileID: 0}
+  hoverClip: {fileID: 8300000, guid: e9525a6ad58a2b4479d4c6e554934ed2, type: 3}
+  clickClip: {fileID: 8300000, guid: 0b1c880302a5a4246aea55c1530dae83, type: 3}
   canClick: 0
 --- !u!114 &626909607
 MonoBehaviour:
@@ -1369,7 +1369,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   musicSource: {fileID: 945769732}
   fadeDuration: 4
-  targetVol: 0.5
+  targetVol: 0.3
 --- !u!82 &945769732
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1381,7 +1381,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 1179588868614897801, guid: aa55e85c56b52d44aaee4061c66e368a,
     type: 2}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: cfa5e98bf60a5cc48a6a16103affed99, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0
   m_Pitch: 1
@@ -1589,7 +1589,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeImage: {fileID: 1101487592}
-  fadeDuration: 3
+  fadeDuration: 2
 --- !u!114 &1101487592
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1978,8 +1978,8 @@ MonoBehaviour:
   hoverScale: 1.4
   moveSpeed: 10
   audioSource: {fileID: 2067949031}
-  hoverClip: {fileID: 0}
-  clickClip: {fileID: 0}
+  hoverClip: {fileID: 8300000, guid: e9525a6ad58a2b4479d4c6e554934ed2, type: 3}
+  clickClip: {fileID: 8300000, guid: 0b1c880302a5a4246aea55c1530dae83, type: 3}
   canClick: 0
 --- !u!114 &1652243541
 MonoBehaviour:
@@ -2395,9 +2395,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2067949033}
-  - component: {fileID: 2067949032}
   - component: {fileID: 2067949031}
-  - component: {fileID: 2067949030}
+  - component: {fileID: 2067949032}
   m_Layer: 0
   m_Name: SFXManager
   m_TagString: Untagged
@@ -2405,21 +2404,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2067949030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2067949029}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f98b6eb31d404e428cb3d27e93a3a71, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  musicSource: {fileID: 0}
-  fadeDuration: 4
-  targetVol: 0.9
 --- !u!82 &2067949031
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2433,13 +2417,13 @@ AudioSource:
     type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0
   m_Pitch: 1
   Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 220
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -2529,9 +2513,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f98b6eb31d404e428cb3d27e93a3a71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  musicSource: {fileID: 0}
+  musicSource: {fileID: 2067949031}
   fadeDuration: 4
-  targetVol: 0.9
+  targetVol: 0.5
 --- !u!4 &2067949033
 Transform:
   m_ObjectHideFlags: 0
