@@ -75,7 +75,7 @@ public class MainMenu : MonoBehaviour
         // Disable UIBlocker, in case it affects later scenes
         UIBlocker.SetActive(false);
         // Load the first level
-        SceneManager.LoadSceneAsync("Map_Design"); // TEMPORARY // TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY
+        SceneManager.LoadSceneAsync("Apartment"); // TEMPORARY // TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY
     }
 
     private IEnumerator DelayQuit()
