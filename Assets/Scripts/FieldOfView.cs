@@ -1,9 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class FieldOfView : MonoBehaviour
 {
+    [Header("FOV Settings")]
     public float radius;
     [Range(0,360)]
     public float angle;
@@ -13,7 +14,9 @@ public class FieldOfView : MonoBehaviour
     public LayerMask targetMask;
     public LayerMask obstructionMask;
 
+    [Header("Debug")]
     public bool canSeePlayer;
+    public bool showVisionConeGiz = false;
 
     private void Start()
     {
@@ -68,5 +71,44 @@ public class FieldOfView : MonoBehaviour
             canSeePlayer = false;
             Debug.Log("You are now hidden");
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (!showVisionConeGiz)
+            return;
+
+        //Draw radius
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, radius);
+
+        //Draw FOV cone edges (Needs DirectionFromAngle helper function)
+        Vector3 leftBound = DirectionFromAngle(-angle / 2f, false);
+        Vector3 rightBound = DirectionFromAngle(angle / 2f, false);
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawLine(transform.position, transform.position + leftBound * radius);
+        Gizmos.DrawLine(transform.position, transform.position + rightBound * radius);
+        
+        //Draw line to player if visible
+        if (canSeePlayer && playerRef != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(transform.position, playerRef.transform.position);
+        }
+    }
+
+    //Help function for Gizmos
+    private Vector3 DirectionFromAngle(float angle, bool angleGlobal)
+    {
+        //Make angle relative to object if local
+        if (!angleGlobal)
+        {
+            angle += transform.eulerAngles.y;
+        }
+
+        float rad = angle * Mathf.Deg2Rad;
+        //0 degrees is foward, 90 degrees is right 
+        return new Vector3(Mathf.Sin(rad), 0f, Mathf.Cos(rad));
     }
 }
