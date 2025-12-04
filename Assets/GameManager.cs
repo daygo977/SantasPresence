@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
 
     public GameObject gameHud;      // HUD
     public GameObject gameWinPanel; // Game win screen
+    public GameObject gameOverPanel; // Game over screen
 
     public TextMeshProUGUI hudTimerText;        // HUD timer (updates)
     public TextMeshProUGUI finalTimeText;    // Result time for win screen
@@ -25,6 +26,8 @@ public class GameManager : MonoBehaviour
     public AudioSource sfxSource;   // SFX Mixer for universal volume/effects control
     public AudioClip cheeringSFX; // Win Condition SFX
     public AudioClip hohohoSFX; // Win Condition SFX
+
+    public bool lostGame = false;
 
     void Awake()
     {
@@ -43,6 +46,11 @@ public class GameManager : MonoBehaviour
         {
             levelTimer += Time.deltaTime;
             hudTimerText.text = FormatTime(levelTimer);
+        }
+
+        if (lostGame)
+        {
+            LoseGame();
         }
     }
 
@@ -101,5 +109,14 @@ public class GameManager : MonoBehaviour
             if (hohohoSFX)
                 sfxSource.PlayOneShot(hohohoSFX, 0.2f);
         }
+    }
+
+    private void LoseGame()
+    {
+        Debug.Log("Player has lost the game");
+        gameOverPanel.SetActive(true);
+        gameHud.SetActive(false);
+        Time.timeScale = 0f;
+        //gameOverMenu.GameOverLock();       
     }
 }

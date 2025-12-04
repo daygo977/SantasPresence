@@ -18,6 +18,13 @@ public class FieldOfView : MonoBehaviour
     public bool canSeePlayer;
     public bool showVisionConeGiz = false;
 
+    [Header("Lose condition")]
+    public float timeToLose = 3f;           //How long player can be seen before lose
+    public float detectionDecayRate = 1f;   //How fast timer will do down when hidden
+    [SerializeField] private float detectionTimer = 0f;
+    
+    public GameOverMenu gameOverMenu;
+    
     private void Start()
     {
         playerRef = GameObject.FindGameObjectWithTag("Player");
@@ -57,13 +64,13 @@ public class FieldOfView : MonoBehaviour
                 else
                 {
                     canSeePlayer = false;
-                    Debug.Log("You are now hidden");
+                    Debug.Log("You are behind a wall, can't see");
                 }
             }
             else
             {
                 canSeePlayer = false;
-                Debug.Log("You are now hidden");
+                Debug.Log("You are not within my Line-of-sight");
             }
         }
         else if (canSeePlayer)
@@ -110,5 +117,31 @@ public class FieldOfView : MonoBehaviour
         float rad = angle * Mathf.Deg2Rad;
         //0 degrees is foward, 90 degrees is right 
         return new Vector3(Mathf.Sin(rad), 0f, Mathf.Cos(rad));
+    }
+
+    private void Update()
+    {
+        UpdateDetectionTimer();
+    }
+
+    private void UpdateDetectionTimer()
+    {
+        if (canSeePlayer)
+        {
+            detectionTimer += Time.deltaTime;
+        }
+        else
+        {
+            detectionTimer -= Time.deltaTime * detectionDecayRate;
+        }
+
+        detectionTimer = Mathf.Clamp(detectionTimer, 0f, timeToLose);
+
+
+        if (detectionTimer >= timeToLose)
+        {
+            Debug.Log("Test 1");
+            gameOverMenu.GameOverLock();
+        }
     }
 }
