@@ -20,9 +20,6 @@ public class GameOverMenu : MonoBehaviour
         gameOverMenu.SetActive(false);
     }
 
-    /// <summary>
-    /// When lose condition is met, this gets called
-    /// </summary>
     public void GameOverLock()
     {
         if (isGameOver)
@@ -31,6 +28,7 @@ public class GameOverMenu : MonoBehaviour
         isGameOver = true;
 
         gameOverMenu.SetActive(true);
+
         //Freeze time
         Time.timeScale = 0f;
 

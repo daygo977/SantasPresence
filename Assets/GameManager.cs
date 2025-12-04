@@ -114,8 +114,8 @@ public class GameManager : MonoBehaviour
     private void LoseGame()
     {
         Debug.Log("Player has lost the game");
-        gameOverPanel.SetActive(true);
         gameHud.SetActive(false);
+        gameOverPanel.SetActive(true);
         Time.timeScale = 0f;
         //gameOverMenu.GameOverLock();       
     }
