@@ -316,15 +316,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1442215338}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbb170fd672eb4546a530f5b7dee4355, type: 3}
+  m_Script: {fileID: 11500000, guid: c28e543bad54633458cc60ae81ca8390, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraTransform: {fileID: 369808015}
+  cameraTransform: {fileID: 0}
   walkSpeed: 4
   runSpeed: 7
   crouchSpeed: 2
   gravity: -9.81
-  mouseSensitivity: 2.5
+  mouseSensitivity: 2
   minLookY: -80
   maxLookY: 80
   crouchHeight: 1
