@@ -4201,7 +4201,7 @@ PrefabInstance:
     - target: {fileID: 718902467173058140, guid: 60e7a8969ad9d3f488d6637323466453,
         type: 3}
       propertyPath: targetVol
-      value: 0
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 2302110434210165086, guid: 60e7a8969ad9d3f488d6637323466453,
         type: 3}
@@ -12869,7 +12869,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1738270814}
   m_Layer: 0
-  m_Name: People
+  m_Name: Enemies
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

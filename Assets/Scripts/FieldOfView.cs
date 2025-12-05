@@ -22,7 +22,9 @@ public class FieldOfView : MonoBehaviour
     public float timeToLose = 3f;           //How long player can be seen before lose
     public float detectionDecayRate = 1f;   //How fast timer will do down when hidden
     [SerializeField] private float detectionTimer = 0f;
-    
+
+    private float currentDistanceToPlayer;
+
     public GameOverMenu gameOverMenu;
     
     private void Start()
@@ -59,6 +61,7 @@ public class FieldOfView : MonoBehaviour
                 if (!Physics.Raycast(transform.position, directionToTarget, distanceToTarget, obstructionMask))
                 {
                     canSeePlayer = true;
+                    currentDistanceToPlayer = distanceToTarget;
                     Debug.Log("I see you!");
                 }
                 else
@@ -128,19 +131,25 @@ public class FieldOfView : MonoBehaviour
     {
         if (canSeePlayer)
         {
-            detectionTimer += Time.deltaTime;
+            float distance = Vector3.Distance(transform.position, playerRef.transform.position);
+            float closeness = 1f - (distance / radius);        // 0 = far edge, 1 = right next to enemy
+            closeness = Mathf.Clamp01(closeness);
+
+            float multiplier = Mathf.Lerp(0.4f, 8f, closeness);
+            // far = 0.5x speed, close = 3x speed (you can tweak!)
+
+            detectionTimer += Time.deltaTime * multiplier;
         }
         else
         {
+            // Lose detection normally
             detectionTimer -= Time.deltaTime * detectionDecayRate;
         }
 
         detectionTimer = Mathf.Clamp(detectionTimer, 0f, timeToLose);
 
-
         if (detectionTimer >= timeToLose)
         {
-            Debug.Log("Test 1");
             gameOverMenu.GameOverLock();
         }
     }
