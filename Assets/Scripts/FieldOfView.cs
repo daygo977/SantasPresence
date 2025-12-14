@@ -1,43 +1,52 @@
 using System.Collections;
-using TMPro;
 using UnityEngine;
 
 public class FieldOfView : MonoBehaviour
 {
     [Header("FOV Settings")]
     public float radius;
-    [Range(0,360)]
-    public float angle;
-
-    public GameObject playerRef;
+    [Range(0, 360)] public float angle;
 
     public LayerMask targetMask;
     public LayerMask obstructionMask;
+
+    [Header("Detection")]
+    public float timeToLose = 3f;
+    public float detectionDecayRate = 1f;
 
     [Header("Debug")]
     public bool canSeePlayer;
     public bool showVisionConeGiz = false;
 
-    [Header("Lose condition")]
-    public float timeToLose = 3f;           //How long player can be seen before lose
-    public float detectionDecayRate = 1f;   //How fast timer will do down when hidden
-    [SerializeField] private float detectionTimer = 0f;
+    private GameObject playerRef;
+    private float detectionTimer = 0f;
 
-    private float currentDistanceToPlayer;
-
-    public GameOverMenu gameOverMenu;
-    
     private void Start()
     {
         playerRef = GameObject.FindGameObjectWithTag("Player");
+        DetectionManager.Instance.RegisterEnemy(this);
         StartCoroutine(FOVRoutine());
+    }
+
+    public float GetCurrentDetection()
+    {
+        return detectionTimer;
+    }
+
+    public float GetTimeToLose()
+    {
+        return timeToLose;
+    }
+
+    private void OnDestroy()
+    {
+        if (DetectionManager.Instance != null)
+            DetectionManager.Instance.UnregisterEnemy(this);
     }
 
     private IEnumerator FOVRoutine()
     {
-        float delay = 0.2f;
-        WaitForSeconds wait = new WaitForSeconds(delay);
-
+        WaitForSeconds wait = new WaitForSeconds(0.2f);
         while (true)
         {
             yield return wait;
@@ -45,86 +54,36 @@ public class FieldOfView : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        UpdateDetectionTimer();
+    }
+
     private void FieldOfViewCheck()
     {
         Collider[] rangeChecks = Physics.OverlapSphere(transform.position, radius, targetMask);
 
-        if (rangeChecks.Length != 0)
-        {
-            Transform target = rangeChecks[0].transform;
-            Vector3 directionToTarget = (target.position - transform.position).normalized;
-
-            if (Vector3.Angle(transform.forward, directionToTarget) < angle / 2)
-            {
-                float distanceToTarget = Vector3.Distance(transform.position, target.position);
-
-                if (!Physics.Raycast(transform.position, directionToTarget, distanceToTarget, obstructionMask))
-                {
-                    canSeePlayer = true;
-                    currentDistanceToPlayer = distanceToTarget;
-                    Debug.Log("I see you!");
-                }
-                else
-                {
-                    canSeePlayer = false;
-                    Debug.Log("You are behind a wall, can't see");
-                }
-            }
-            else
-            {
-                canSeePlayer = false;
-                Debug.Log("You are not within my Line-of-sight");
-            }
-        }
-        else if (canSeePlayer)
+        if (rangeChecks.Length == 0)
         {
             canSeePlayer = false;
-            Debug.Log("You are now hidden");
-        }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        if (!showVisionConeGiz)
             return;
-
-        //Draw radius
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, radius);
-
-        //Draw FOV cone edges (Needs DirectionFromAngle helper function)
-        Vector3 leftBound = DirectionFromAngle(-angle / 2f, false);
-        Vector3 rightBound = DirectionFromAngle(angle / 2f, false);
-
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawLine(transform.position, transform.position + leftBound * radius);
-        Gizmos.DrawLine(transform.position, transform.position + rightBound * radius);
-        
-        //Draw line to player if visible
-        if (canSeePlayer && playerRef != null)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(transform.position, playerRef.transform.position);
-        }
-    }
-
-    //Help function for Gizmos
-    private Vector3 DirectionFromAngle(float angle, bool angleGlobal)
-    {
-        //Make angle relative to object if local
-        if (!angleGlobal)
-        {
-            angle += transform.eulerAngles.y;
         }
 
-        float rad = angle * Mathf.Deg2Rad;
-        //0 degrees is foward, 90 degrees is right 
-        return new Vector3(Mathf.Sin(rad), 0f, Mathf.Cos(rad));
-    }
+        Transform target = rangeChecks[0].transform;
+        Vector3 dirToTarget = (target.position - transform.position).normalized;
 
-    private void Update()
-    {
-        UpdateDetectionTimer();
+        if (Vector3.Angle(transform.forward, dirToTarget) > angle / 2)
+        {
+            canSeePlayer = false;
+            return;
+        }
+
+        float dist = Vector3.Distance(transform.position, target.position);
+
+        if (!Physics.Raycast(transform.position, dirToTarget, dist, obstructionMask))
+            canSeePlayer = true;
+        else
+            canSeePlayer = false;
     }
 
     private void UpdateDetectionTimer()
@@ -132,25 +91,45 @@ public class FieldOfView : MonoBehaviour
         if (canSeePlayer)
         {
             float distance = Vector3.Distance(transform.position, playerRef.transform.position);
-            float closeness = 1f - (distance / radius);        // 0 = far edge, 1 = right next to enemy
+            float closeness = 1f - (distance / radius);
             closeness = Mathf.Clamp01(closeness);
 
             float multiplier = Mathf.Lerp(0.4f, 8f, closeness);
-            // far = 0.5x speed, close = 3x speed (you can tweak!)
-
             detectionTimer += Time.deltaTime * multiplier;
         }
         else
         {
-            // Lose detection normally
             detectionTimer -= Time.deltaTime * detectionDecayRate;
         }
 
         detectionTimer = Mathf.Clamp(detectionTimer, 0f, timeToLose);
+    }
 
-        if (detectionTimer >= timeToLose)
+    private void OnDrawGizmosSelected()
+    {
+        if (!showVisionConeGiz) return;
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, radius);
+
+        Vector3 left = DirectionFromAngle(-angle / 2f);
+        Vector3 right = DirectionFromAngle(angle / 2f);
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawLine(transform.position, transform.position + left * radius);
+        Gizmos.DrawLine(transform.position, transform.position + right * radius);
+
+        if (canSeePlayer && playerRef != null)
         {
-            gameOverMenu.GameOverLock();
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, playerRef.transform.position);
         }
+    }
+
+    private Vector3 DirectionFromAngle(float angle)
+    {
+        angle += transform.eulerAngles.y;
+        float rad = angle * Mathf.Deg2Rad;
+        return new Vector3(Mathf.Sin(rad), 0f, Mathf.Cos(rad));
     }
 }
