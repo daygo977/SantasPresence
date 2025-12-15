@@ -25,9 +25,9 @@ public class HoldToInteract : MonoBehaviour
         if (playerInside && canPlant)
         {
             // E is the input needed for progress to be made
-            if (Input.GetKey(KeyCode.E))
+            if (Input.GetKey(KeyCode.F))
             {
-                // holdProgress holds the point in which we started holding E
+                // holdProgress holds the point in which we started holding F
                 holdProgress += Time.deltaTime;
                 // Slider reflects the amount of time we've been holding E since we first held it
                 progressSlider.value = holdProgress / holdTime;
