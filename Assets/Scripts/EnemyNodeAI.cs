@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using UnityEditor.EditorTools;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -49,13 +49,38 @@ public class EnemyNodeAI : MonoBehaviour
 
     private float investigateEndTime;
 
+    [Header("Sensing")]
+    public FieldOfView fov;
+    public string playerTag="Player";
+    private Transform playerTagTf;
+
+    [Header("Suspicion/Detection Decay (by State)")]
+    [Tooltip("If true, EnemyNodeAI will adjust FOV.detectDecayRate based on State")]
+    public bool driveSuspicionDecay=true;
+
+    [Tooltip("Multiplier applied to FOV's starting detectionDecayRate while Patroling")]
+    public float patrolDecayMultiplier=2.0f;
+
+    [Tooltip("Multiplier applied to FOV's starting detectionDecayRate while Roaming")]
+    public float roamDecayMultiplier=2.0f;
+
+    [Tooltip("Multiplier applied to FOV's starting detectionDecayRate while Investigating")]
+    public float investigateDecayMultiplier=0.35f;
+
+    [Tooltip("Multiplier applied to FOV's starting detectionDecayRate while Hunting. Set 0 = no decay")]
+    public float huntDecayMultiplier=0f;
+
+    private float baseDecayRate = 1f;
+    private bool baseDecayCaptured = false;
+
     /// <summary>
     /// Called in editor when script is added or reset.
     /// Auto set NavMeshAgent component
     /// </summary>
     private void Reset()
     {
-        agent = GetComponent<NavMeshAgent>();
+        agent=GetComponent<NavMeshAgent>();
+        fov=GetComponentInChildren<FieldOfView>();
     }
 
     private void Start()
@@ -63,6 +88,24 @@ public class EnemyNodeAI : MonoBehaviour
         if (!agent)
         {
             agent=GetComponent<NavMeshAgent>();
+        }
+
+        if (!fov)
+        {
+            fov=GetComponentInChildren<FieldOfView>();
+        }
+
+        //Cache player transform
+        var go=GameObject.FindGameObjectWithTag(playerTag);
+        if (go)
+        {
+            playerTagTf=go.transform;
+        }
+        //Cache base suspicion decay
+        if (fov != null)
+        {
+            baseDecayRate=fov.detectionDecayRate;
+            baseDecayCaptured=true;
         }
         EnterInitialState();
     }
@@ -84,6 +127,24 @@ public class EnemyNodeAI : MonoBehaviour
 
     private void Update()
     {
+        //If fov says it sees the player, refresh OnSeePlayer each frame
+        if (fov!=null && fov.canSeePlayer)
+        {
+            if (!playerTagTf)
+            {
+                var go=GameObject.FindGameObjectWithTag(playerTag);
+                if (go)
+                {
+                    playerTagTf=go.transform;
+                }
+
+                if (playerTagTf)
+                {
+                    OnSeePlayer(playerTagTf);
+                }
+            }
+        }
+
         switch (state)
         {
             case State.Patrol:
@@ -148,7 +209,7 @@ public class EnemyNodeAI : MonoBehaviour
         if (!target)
         {
             //Skip null node and move to next index
-            patrolIndex=(patrolIndex + 1)%patrolRoute.Count;
+            patrolIndex=(patrolIndex+1)%patrolRoute.Count;
             return;
         }
 
@@ -312,12 +373,18 @@ public class EnemyNodeAI : MonoBehaviour
             return;
         }
 
-        // Chase player's current position
-        lastKnownPos=player.position;
+        //Only update lastKnownPos while actually visible (prevent seing through wall tracking)
+        bool seesNow=(fov!=null && fov.canSeePlayer);
+        if (seesNow)
+        {
+            lastKnownPos=player.position;
+            lastSeenTime=Time.time;
+        }
+        //Move to last known position (seen)
         SetDestinationIfReady(lastKnownPos);
         
-        // If we haven't been seeing player, go to investigate
-        if (Time.time - lastSeenTime > loseSightDelay)
+        // If we haven't been seeing player and we don't see them in the moment, go to investigate
+        if (!seesNow && (Time.time-lastSeenTime > loseSightDelay))
         {
             SwitchState(State.Investigate);
         }
@@ -359,8 +426,40 @@ public class EnemyNodeAI : MonoBehaviour
             visited.Clear();
             currentTarget=null;
             queuedNext=null;
-            investigateEndTime=Time.time-investigateDuration;
+            investigateEndTime=Time.time+investigateDuration;
         }
+
+        ApplySuspicionDecayForState();
+    }
+
+    private void ApplySuspicionDecayForState()
+    {
+        if (!driveSuspicionDecay || fov==null || !baseDecayCaptured)
+        {
+            return;
+        }
+
+        float mult = 1f;
+        switch (state)
+        {
+            case State.Patrol:
+                mult=patrolDecayMultiplier;
+                break;
+        
+            case State.RoamMap:
+                mult=roamDecayMultiplier;
+                break;
+
+            case State.Investigate:
+                mult=investigateDecayMultiplier;
+                break;
+
+            case State.Hunt:
+                mult=huntDecayMultiplier;
+                break;
+        }
+
+        fov.detectionDecayRate=baseDecayRate*mult;
     }
 
     /// <summary>
