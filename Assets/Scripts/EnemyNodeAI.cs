@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEditor.EditorTools;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -21,7 +20,7 @@ public class EnemyNodeAI : MonoBehaviour
 
     [Header("Nodes / Roam")]
     public float perceptionRadius=6f; //Distance used to check nearby nodes
-    public float nodeArriveDistnce=1.1f; //How close the enemy must get to a node before being reached
+    public float nodeArriveDistance=1.1f; //How close the enemy must get to a node before being reached
     public float repathCooldown=0.2f;   //Min time between recomputing path (for optimization)
 
     [Header("Investigate (Roam Level 2)")]
@@ -48,6 +47,9 @@ public class EnemyNodeAI : MonoBehaviour
     private float lastSeenTime;
 
     private float investigateEndTime;
+
+    [Header("Debug Gizmos")]
+    public bool showAIPerceptionGizmos=true;
 
     [Header("Sensing")]
     public FieldOfView fov;
@@ -137,12 +139,11 @@ public class EnemyNodeAI : MonoBehaviour
                 {
                     playerTagTf=go.transform;
                 }
-
-                if (playerTagTf)
+            }
+            if (playerTagTf)
                 {
                     OnSeePlayer(playerTagTf);
                 }
-            }
         }
 
         switch (state)
@@ -235,7 +236,7 @@ public class EnemyNodeAI : MonoBehaviour
         }
         
         //If close to current target node
-        if (IsWithinPerception(currentTarget.transform.position))
+        if (HasReached(currentTarget.transform.position))
         {   
             visited.Add(currentTarget);
 
@@ -265,6 +266,10 @@ public class EnemyNodeAI : MonoBehaviour
 
     private void PickInitialTargets(Vector3? filterCenter, float filterRadius)
     {
+        if (NodeGraph.Instance == null){
+            return;
+        }
+
         //Try to find a valid start node
         var candidate=PickRandomCandidateNode(filterCenter, filterRadius);
         if (!candidate)
@@ -282,6 +287,10 @@ public class EnemyNodeAI : MonoBehaviour
 
     private AINode PickRandomCandidateNode(Vector3? filterCenter, float filterRadius)
     {
+        if (NodeGraph.Instance == null){
+            return null;
+        }
+
         var all=NodeGraph.Instance.AllNodes;
         if (all.Count == 0)
         {
@@ -320,6 +329,10 @@ public class EnemyNodeAI : MonoBehaviour
 
     private AINode PickNextQueued(AINode fromNode, Vector3? filterCenter, float filterRadius)
     {
+        if (NodeGraph.Instance == null){
+            return null;
+        }
+
         if (!fromNode)
         {
             return null;
@@ -468,6 +481,10 @@ public class EnemyNodeAI : MonoBehaviour
     /// </summary>
     private void CheckNodePerception()
     {
+        if (NodeGraph.Instance == null){
+            return;
+        }
+
         var nearNodes=NodeGraph.Instance.GetNodeInRadius(transform.position, perceptionRadius);
         foreach (var n in nearNodes)
         {
@@ -485,12 +502,17 @@ public class EnemyNodeAI : MonoBehaviour
     /// </summary>
     private bool HasReached(Vector3 pos)
     {
-        if (!agent.pathPending && agent.remainingDistance <= Mathf.Max(agent.stoppingDistance, nodeArriveDistnce))
+        if (!agent || !agent.enabled)
+        {
+            return (pos-transform.position).sqrMagnitude <= nodeArriveDistance*nodeArriveDistance;
+        }
+
+        if (!agent.pathPending && agent.hasPath && agent.remainingDistance <= Mathf.Max(agent.stoppingDistance, nodeArriveDistance))
         {
             return true;
         }
 
-        return (pos-transform.position).sqrMagnitude <= nodeArriveDistnce*nodeArriveDistnce;
+        return (pos-transform.position).sqrMagnitude <= nodeArriveDistance*nodeArriveDistance;
     }
     
     /// <summary>
@@ -503,6 +525,11 @@ public class EnemyNodeAI : MonoBehaviour
             return;
         }
         nextRepathTime=Time.time+repathCooldown;
+
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.SetDestination(pos);
+        } 
 
         if (agent.isOnNavMesh)
         {
@@ -525,5 +552,34 @@ public class EnemyNodeAI : MonoBehaviour
         }
 
         return path.status==NavMeshPathStatus.PathComplete;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (!showAIPerceptionGizmos)
+        {
+            return;
+        }
+
+        Gizmos.color=Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, perceptionRadius);
+
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        if (state == State.Investigate)
+        {
+            Gizmos.color=Color.cyan;
+            Gizmos.DrawWireSphere(lastKnownPos, investigateRadius);
+        }
+
+        if (currentTarget != null)
+        {
+            Gizmos.color=Color.white;
+            Gizmos.DrawLine(transform.position, currentTarget.transform.position);
+            Gizmos.DrawWireSphere(currentTarget.transform.position, 0.25f);
+        }
     }
 }
