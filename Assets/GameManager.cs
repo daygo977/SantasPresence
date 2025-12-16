@@ -12,11 +12,13 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     public TextMeshProUGUI giftsText;
     public GameObject gameHud;
-    public GameObject gameWinPanel;
-    public GameObject gameOverPanel;
 
     public TextMeshProUGUI hudTimerText;
     public TextMeshProUGUI finalTimeText;
+
+    public TextMeshProUGUI escapeText;
+    public Color escapeReadyColor = Color.green;
+
 
     [Header("Audio")]
     public AudioSource sfxSource;
@@ -33,6 +35,8 @@ public class GameManager : MonoBehaviour
     public EscapeTrigger escapeTrigger;
     private bool escapeUnlocked = false;
 
+    private bool loseHandled = false;
+
     private void Awake()
     {
         if (Instance == null)
@@ -40,10 +44,16 @@ public class GameManager : MonoBehaviour
         else
             Destroy(gameObject);
 
-        gameWinPanel.SetActive(false);
-        gameOverPanel.SetActive(false);
         gameHud.SetActive(true);
+
+        if (escapeText != null)
+        {
+            Color c = escapeText.color;
+            c.a = 0f;
+            escapeText.color = c;
+        }
     }
+
 
     private void Start()
     {
@@ -74,19 +84,35 @@ public class GameManager : MonoBehaviour
     public void PlantGift()
     {
         giftsPlanted++;
-        UpdateGiftText();
 
         if (!escapeUnlocked && giftsPlanted >= totalTrees)
         {
             escapeUnlocked = true;
             CueEscape();
+            ShowEscapeUI();
         }
-    }
 
+        UpdateGiftText();
+    }
 
     private void UpdateGiftText()
     {
         giftsText.text = $"Gifts Planted: {giftsPlanted}/{totalTrees}";
+
+        if (escapeUnlocked)
+        {
+            giftsText.color = escapeReadyColor;
+        }
+    }
+
+    private void ShowEscapeUI()
+    {
+        if (escapeText == null)
+            return;
+
+        Color c = escapeText.color;
+        c.a = 1f;
+        escapeText.color = c;
     }
 
     private string FormatTime(float t)
@@ -108,11 +134,7 @@ public class GameManager : MonoBehaviour
 
     private void WinGame()
     {
-        gameWinPanel.SetActive(true);
-        gameHud.SetActive(false);
-        Time.timeScale = 0f;
         timerRunning = false;
-
         finalTimeText.text = FormatTime(levelTimer);
 
         if (sfxSource)
@@ -122,15 +144,16 @@ public class GameManager : MonoBehaviour
             if (hohohoSFX)
                 sfxSource.PlayOneShot(hohohoSFX, 0.2f);
         }
+
+        FindObjectOfType<MenuController>().ShowWin();
     }
 
     private void LoseGame()
     {
-        if (!gameOverPanel.activeSelf)
-        {
-            gameHud.SetActive(false);
-            gameOverPanel.SetActive(true);
-            Time.timeScale = 0f;
-        }
+        if (loseHandled)
+            return;
+
+        loseHandled = true;
+        FindObjectOfType<MenuController>().ShowLose();
     }
 }

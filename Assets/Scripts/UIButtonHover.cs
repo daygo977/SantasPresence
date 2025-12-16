@@ -37,7 +37,7 @@ public class UIButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void OnPointerEnter(PointerEventData eventData)
     {
         hovering = true;
-        Debug.Log("Hovering");
+
         if (audioSource && hoverClip)
             audioSource.PlayOneShot(hoverClip, 0.5f);
     }

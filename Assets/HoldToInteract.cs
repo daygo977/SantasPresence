@@ -11,6 +11,17 @@ public class HoldToInteract : MonoBehaviour
     private float holdProgress = 0f; // Initially 0
     private bool canPlant = true; // Initially possible to plant a present under the tree
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip plantSound;
+
+    [Range(0f, 1f)]
+    public float plantVolume = 1f;
+
+    [Header("Noise")]
+    public float plantNoiseRadius = 8f;
+    public LayerMask enemyLayer;
+
     void Start()
     {
         uiObject.SetActive(false); // Initially hidden
@@ -50,12 +61,41 @@ public class HoldToInteract : MonoBehaviour
 
     private void CompleteInteraction()
     {
-        canPlant = false; // We can no longer plant more presents under this tree
-        uiObject.SetActive(false); // Hide UI panel now
+        canPlant = false;
+        uiObject.SetActive(false);
         playerInside = false;
 
         GameManager.Instance.PlantGift();
         Debug.Log("Tree planted!");
+
+        PlayPlantSound();
+        EmitPlantNoise();
+    }
+
+    void PlayPlantSound()
+    {
+        if (audioSource && plantSound)
+        {
+            audioSource.PlayOneShot(plantSound, plantVolume);
+        }
+    }
+
+    void EmitPlantNoise()
+    {
+        Collider[] hits = Physics.OverlapSphere(
+            transform.position,
+            plantNoiseRadius,
+            enemyLayer
+        );
+
+        foreach (var hit in hits)
+        {
+            EnemyHearing enemy = hit.GetComponentInParent<EnemyHearing>();
+            if (enemy != null)
+            {
+                enemy.HearNoise(transform.position, plantNoiseRadius);
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
