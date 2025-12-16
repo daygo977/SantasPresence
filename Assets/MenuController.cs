@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class MenuController : MonoBehaviour
 {
@@ -8,6 +9,11 @@ public class MenuController : MonoBehaviour
     public GameObject optionsMenu;
     public GameObject winMenu;
     public GameObject loseMenu;
+
+    public GameObject gameHud;
+
+    [Header("Win UI")]
+    public TextMeshProUGUI newBestText;
 
     private enum MenuState
     {
@@ -22,6 +28,11 @@ public class MenuController : MonoBehaviour
     void Start()
     {
         CloseAllMenus();
+
+        if (gameHud != null)
+            gameHud.SetActive(true);
+
+        currentState = MenuState.None;
     }
 
     void Update()
@@ -73,7 +84,13 @@ public class MenuController : MonoBehaviour
         winMenu.SetActive(true);
         currentState = MenuState.Win;
         GameStateManager.Instance.LockGame();
+
+        if (newBestText != null && GameManager.Instance != null)
+        {
+            newBestText.gameObject.SetActive(GameManager.Instance.isNewBest);
+        }
     }
+
 
     public void ShowLose()
     {
@@ -87,6 +104,10 @@ public class MenuController : MonoBehaviour
     {
         CloseAllMenus();
         currentState = MenuState.None;
+
+        if (gameHud != null)
+            gameHud.SetActive(true);
+
         GameStateManager.Instance.UnlockGame();
     }
 
@@ -113,5 +134,9 @@ public class MenuController : MonoBehaviour
         optionsMenu.SetActive(false);
         winMenu.SetActive(false);
         loseMenu.SetActive(false);
+
+        if (gameHud != null)
+            gameHud.SetActive(false);
     }
+
 }

@@ -37,6 +37,9 @@ public class GameManager : MonoBehaviour
 
     private bool loseHandled = false;
 
+    [HideInInspector]
+    public bool isNewBest = false;
+
     private void Awake()
     {
         if (Instance == null)
@@ -137,6 +140,8 @@ public class GameManager : MonoBehaviour
         timerRunning = false;
         finalTimeText.text = FormatTime(levelTimer);
 
+        SaveBestTime();
+
         if (sfxSource)
         {
             if (cheeringSFX)
@@ -148,6 +153,7 @@ public class GameManager : MonoBehaviour
         FindObjectOfType<MenuController>().ShowWin();
     }
 
+
     private void LoseGame()
     {
         if (loseHandled)
@@ -155,5 +161,24 @@ public class GameManager : MonoBehaviour
 
         loseHandled = true;
         FindObjectOfType<MenuController>().ShowLose();
+    }
+
+    private void SaveBestTime()
+    {
+        string levelKey = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        string prefKey = $"BestTime_{levelKey}";
+
+        float previousBest = PlayerPrefs.GetFloat(prefKey, float.MaxValue);
+
+        if (levelTimer < previousBest)
+        {
+            isNewBest = true;
+            PlayerPrefs.SetFloat(prefKey, levelTimer);
+            PlayerPrefs.Save();
+        }
+        else
+        {
+            isNewBest = false;
+        }
     }
 }

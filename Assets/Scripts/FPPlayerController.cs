@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using System;
 
 [RequireComponent(typeof(CharacterController))]
 public class FPPlayerController : MonoBehaviour
@@ -32,6 +34,9 @@ public class FPPlayerController : MonoBehaviour
     public float runNoise = 1f;         // high noise
     public float crouchNoise = 0.05f;   // almost no noise
 
+    [Header("Speed Buff")]
+    public float speedMultiplier = 1f;
+
     [HideInInspector] public float currentNoiseLevel;
     public enum MoveState { Idle, Walk, Run, Crouch }
     [HideInInspector] public MoveState currentState;
@@ -47,6 +52,9 @@ public class FPPlayerController : MonoBehaviour
     private float currentLeanAngle = 0f;
     private float targetLeanAngle = 0f;
     private float targetLeanOffsetX = 0f;
+
+    public static event Action<float> OnSpeedBoostStarted; // speed boost duration
+    public static event Action OnSpeedBoostEnded;
 
     void Awake()
     {
@@ -107,6 +115,8 @@ public class FPPlayerController : MonoBehaviour
             speed = crouchSpeed;
         else if (wantsToRun && move.magnitude > 0.1f)
             speed = runSpeed;
+
+        speed *= speedMultiplier;
 
         controller.Move(move * speed * Time.deltaTime);
 
@@ -196,5 +206,23 @@ public class FPPlayerController : MonoBehaviour
         }
 
         // Note to self - AI can read currentNoiseLevel from this component
+
+
+    }
+    public void ApplySpeedBoost(float multiplier, float duration)
+    {
+        StopAllCoroutines();
+        StartCoroutine(SpeedBoostRoutine(multiplier, duration));
+    }
+
+    private IEnumerator SpeedBoostRoutine(float multiplier, float duration)
+    {
+        speedMultiplier = multiplier;
+        OnSpeedBoostStarted?.Invoke(duration);
+
+        yield return new WaitForSeconds(duration);
+
+        speedMultiplier = 1f;
+        OnSpeedBoostEnded?.Invoke();
     }
 }

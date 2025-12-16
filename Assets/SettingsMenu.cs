@@ -13,6 +13,8 @@ public class SettingsMenu : MonoBehaviour
     public GameObject optionsMenu;
     public GameObject pauseMenu;
 
+    public BestTimesUI bestTimesUI;
+
     public static bool cursorHiddenSetting = false;
 
     void Start()
@@ -37,6 +39,24 @@ public class SettingsMenu : MonoBehaviour
 
         PersistentSettings.Instance.musicVolume = volume;
         PersistentSettings.Instance.Save();
+    }
+
+    public void ResetBestTimes()
+    {
+        ResetLevelBest("Apartment");
+        // ResetLevelBest("Forest"); // CHANGE THIS TO SECOND LEVEL NAME!// CHANGE THIS TO SECOND LEVEL NAME!// CHANGE THIS TO SECOND LEVEL NAME!
+
+        PlayerPrefs.Save();
+
+        if (bestTimesUI != null)
+            bestTimesUI.Refresh();
+    }
+
+    private void ResetLevelBest(string levelName)
+    {
+        string key = $"BestTime_{levelName}";
+        if (PlayerPrefs.HasKey(key))
+            PlayerPrefs.DeleteKey(key);
     }
 
     public void BackToPause()

@@ -8,6 +8,7 @@ public class MainMenu : MonoBehaviour
     private float delayTime = 1f;       // Default delay time
     public GameObject levelSelectMenu;  // Level Select UI
     public GameObject QuitYesOrNoUI;    // A prompt that asks if player is sure to quit the game
+    public GameObject ResetYesOrNoUI;   // A prompt that asks if player is sure to reset their best times
     public GameObject MainMenuUI;       // Main Menu UI
     public GameObject optionsMenu;      // Options menu for enabling/disabling
     public GameObject UIBlocker;        // Panel that is raycastable so it blocks button from being able to be pressed
@@ -40,6 +41,7 @@ public class MainMenu : MonoBehaviour
         // If player clicks on options button
         optionsMenu.SetActive(true);
         MainMenuUI.SetActive(false);
+        ResetYesOrNoUI.SetActive(false);
     }
 
     public void BackToPause()
@@ -49,9 +51,13 @@ public class MainMenu : MonoBehaviour
         {
             optionsMenu.SetActive(false);
         }
-        else
+        else if (levelSelectMenu.activeInHierarchy)
         {
             levelSelectMenu.SetActive(false);
+        }
+        else
+        {
+            ResetYesOrNoUI.SetActive(false);
         }
         MainMenuUI.SetActive(true);
     }
@@ -74,6 +80,12 @@ public class MainMenu : MonoBehaviour
     {
         QuitYesOrNoUI.SetActive(false);
         UIBlocker.SetActive(false);
+    }
+
+    public void ResetPanelOn()
+    {
+        ResetYesOrNoUI.SetActive(true);
+        optionsMenu.SetActive(false);
     }
 
     private IEnumerator DelayStart(int level)
@@ -99,10 +111,6 @@ public class MainMenu : MonoBehaviour
         UIBlocker.SetActive(false);
 
         if (level == 1)
-        {
-            SceneManager.LoadSceneAsync("Apartment");
-        }
-        else if (level == 2)
         {
             SceneManager.LoadSceneAsync("Apartment");
         }
