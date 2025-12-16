@@ -413,6 +413,7 @@ public class EnemyNodeAI : MonoBehaviour
     private void SwitchState(State newState)
     {
         state=newState;
+        Debug.Log($"{name} switched to state: {state}");
 
         // Clear node selection whenever we enter roam state, so it re-initializes
         if (state == State.RoamMap)
