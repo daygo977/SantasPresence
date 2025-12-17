@@ -1,22 +1,62 @@
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class SettingsMenu : MonoBehaviour
 {
-    public AudioMixer audioMixer;   // Main Mixer to adjust, allowing either SFX or BGM to change
-    public GameObject optionsMenu;  // Options menu for being able to deactivate when going back to previous panel, being pause
-    public GameObject pauseMenu;    // Pause menu to reactivate later
+    public AudioMixer audioMixer;
 
-    public static bool cursorHiddenSetting = false; // Static variable for cursor being hidden or visible
+    [Header("Sliders")]
+    public Slider musicSlider;
+    public Slider sfxSlider;
+
+    public GameObject optionsMenu;
+    public GameObject pauseMenu;
+
+    public BestTimesUI bestTimesUI;
+
+    public static bool cursorHiddenSetting = false;
+
+    void Start()
+    {
+        var settings = PersistentSettings.Instance;
+
+        musicSlider.SetValueWithoutNotify(settings.musicVolume);
+        sfxSlider.SetValueWithoutNotify(settings.sfxVolume);
+    }
 
     public void SetSFXVolume(float volume)
     {
-        audioMixer.SetFloat("sfxVolume", volume);   // If we are adjusting SFX slider object, then change the SFX portion of the mixer
+        audioMixer.SetFloat("sfxVolume", volume);
+
+        PersistentSettings.Instance.sfxVolume = volume;
+        PersistentSettings.Instance.Save();
     }
 
     public void SetMusicVolume(float volume)
     {
-        audioMixer.SetFloat("musicVolume", volume); // If we are adjusting BGM slider object, then change the BGM portion of the mixer
+        audioMixer.SetFloat("musicVolume", volume);
+
+        PersistentSettings.Instance.musicVolume = volume;
+        PersistentSettings.Instance.Save();
+    }
+
+    public void ResetBestTimes()
+    {
+        ResetLevelBest("Apartment");
+        // ResetLevelBest("Forest"); // CHANGE THIS TO SECOND LEVEL NAME!// CHANGE THIS TO SECOND LEVEL NAME!// CHANGE THIS TO SECOND LEVEL NAME!
+
+        PlayerPrefs.Save();
+
+        if (bestTimesUI != null)
+            bestTimesUI.Refresh();
+    }
+
+    private void ResetLevelBest(string levelName)
+    {
+        string key = $"BestTime_{levelName}";
+        if (PlayerPrefs.HasKey(key))
+            PlayerPrefs.DeleteKey(key);
     }
 
     public void BackToPause()

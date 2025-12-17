@@ -6,17 +6,34 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour
 {
     private float delayTime = 1f;       // Default delay time
+    public GameObject levelSelectMenu;  // Level Select UI
     public GameObject QuitYesOrNoUI;    // A prompt that asks if player is sure to quit the game
+    public GameObject ResetYesOrNoUI;   // A prompt that asks if player is sure to reset their best times
     public GameObject MainMenuUI;       // Main Menu UI
     public GameObject optionsMenu;      // Options menu for enabling/disabling
     public GameObject UIBlocker;        // Panel that is raycastable so it blocks button from being able to be pressed
     public FadeIn fadeTransition;       // NEED TO ADD
     public MenuMusic menuMusic;         // NEED TO ADD
 
-    public void PlayGame()
+    public void LevelSelect()
     {
-        // When player clicks PLAY, head into next scene with a slight delay, allowing for fade transition and music to fade
-        StartCoroutine(DelayStart());
+        levelSelectMenu.SetActive(true);
+        MainMenuUI.SetActive(false);
+    }
+
+    public void PlayLevel1()
+    {
+        StartCoroutine(DelayStart(1));
+    }
+
+    public void PlayLevel2()
+    {
+        StartCoroutine(DelayStart(2));
+    }
+
+    public void PlayLevel3()
+    {
+        StartCoroutine(DelayStart(3));
     }
 
     public void Options()
@@ -24,12 +41,24 @@ public class MainMenu : MonoBehaviour
         // If player clicks on options button
         optionsMenu.SetActive(true);
         MainMenuUI.SetActive(false);
+        ResetYesOrNoUI.SetActive(false);
     }
 
     public void BackToPause()
     {
         // Coming back from options to main menu
-        optionsMenu.SetActive(false);
+        if (optionsMenu.activeInHierarchy)
+        {
+            optionsMenu.SetActive(false);
+        }
+        else if (levelSelectMenu.activeInHierarchy)
+        {
+            levelSelectMenu.SetActive(false);
+        }
+        else
+        {
+            ResetYesOrNoUI.SetActive(false);
+        }
         MainMenuUI.SetActive(true);
     }
 
@@ -53,7 +82,13 @@ public class MainMenu : MonoBehaviour
         UIBlocker.SetActive(false);
     }
 
-    private IEnumerator DelayStart()
+    public void ResetPanelOn()
+    {
+        ResetYesOrNoUI.SetActive(true);
+        optionsMenu.SetActive(false);
+    }
+
+    private IEnumerator DelayStart(int level)
     {
         if (menuMusic != null && fadeTransition != null)
         {
@@ -64,7 +99,7 @@ public class MainMenu : MonoBehaviour
             StartCoroutine(fadeTransition.FadeInImage());
 
             // Wait for whichever takes longer, either music fade duration or fade transition
-            yield return new WaitForSecondsRealtime(Mathf.Max(menuMusic.fadeDuration, fadeTransition.fadeDuration));
+            yield return new WaitForSecondsRealtime(Mathf.Max(menuMusic.fadeOutDuration, fadeTransition.fadeDuration));
         }
         else
         {
@@ -74,8 +109,15 @@ public class MainMenu : MonoBehaviour
 
         // Disable UIBlocker, in case it affects later scenes
         UIBlocker.SetActive(false);
-        // Load the first level
-        SceneManager.LoadSceneAsync("Apartment"); // TEMPORARY // TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY
+
+        if (level == 1)
+        {
+            SceneManager.LoadSceneAsync("Apartment");
+        }
+        else
+        {
+            SceneManager.LoadSceneAsync("Apartment");
+        }
     }
 
     private IEnumerator DelayQuit()

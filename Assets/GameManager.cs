@@ -1,46 +1,70 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
-using UnityEditor;
-using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public int giftsPlanted = 0; // Amount of gifts successfully dropped off at a tree (initially 0 at start of level)
-    public int totalTrees = 0; // Amount of trees in the current scene/level
+    [Header("Progress")]
+    public int giftsPlanted = 0;
+    public int totalTrees = 0;
 
-    public TextMeshProUGUI giftsText; // TMP Text placeholder
+    [Header("UI")]
+    public TextMeshProUGUI giftsText;
+    public GameObject gameHud;
 
-    public GameObject gameHud;      // HUD
-    public GameObject gameWinPanel; // Game win screen
-    public GameObject gameOverPanel; // Game over screen
+    public TextMeshProUGUI hudTimerText;
+    public TextMeshProUGUI finalTimeText;
 
-    public TextMeshProUGUI hudTimerText;        // HUD timer (updates)
-    public TextMeshProUGUI finalTimeText;    // Result time for win screen
+    public TextMeshProUGUI escapeText;
+    public Color escapeReadyColor = Color.green;
 
-    private float levelTimer = 0f;  // Initiially timer starts at 0 seconds
-    private bool timerRunning = false;  // Initially timer has not started yet until first frame
 
-    public AudioSource sfxSource;   // SFX Mixer for universal volume/effects control
-    public AudioClip cheeringSFX; // Win Condition SFX
-    public AudioClip hohohoSFX; // Win Condition SFX
+    [Header("Audio")]
+    public AudioSource sfxSource;
+    public AudioClip cheeringSFX;
+    public AudioClip hohohoSFX;
 
+    private float levelTimer = 0f;
+    private bool timerRunning = false;
+
+    [HideInInspector]
     public bool lostGame = false;
 
-    void Awake()
+    [Header("Escape")]
+    public EscapeTrigger escapeTrigger;
+    private bool escapeUnlocked = false;
+
+    private bool loseHandled = false;
+
+    [HideInInspector]
+    public bool isNewBest = false;
+
+    private void Awake()
     {
         if (Instance == null)
             Instance = this;
         else
             Destroy(gameObject);
 
-        gameWinPanel.SetActive(false);  // Initially false
-        gameHud.SetActive(true);        // Initially HUD is active
+        gameHud.SetActive(true);
+
+        if (escapeText != null)
+        {
+            Color c = escapeText.color;
+            c.a = 0f;
+            escapeText.color = c;
+        }
     }
 
-    void Update()
+
+    private void Start()
+    {
+        UpdateGiftText();
+        timerRunning = true;
+    }
+
+    private void Update()
     {
         if (timerRunning)
         {
@@ -54,69 +78,107 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-        UpdateGiftText();   // Update counter for HUD
-        timerRunning = true;    // Timer begins
-    }
-
     public void RegisterTree()
     {
-        totalTrees++;       // Update counter of trees read in the level
-        UpdateGiftText();   // Determine denominator to counter for HUD
+        totalTrees++;
+        UpdateGiftText();
     }
 
     public void PlantGift()
     {
-        giftsPlanted++;     // Successfully planted a gift, update counter
-        UpdateGiftText();   // Update text for HUD
+        giftsPlanted++;
 
-        if (giftsPlanted >= totalTrees) // Checks every time a gift is planted that if the the counter is n/n, then player wins the game
+        if (!escapeUnlocked && giftsPlanted >= totalTrees)
         {
-            WinGame(); // Game win function call
+            escapeUnlocked = true;
+            CueEscape();
+            ShowEscapeUI();
         }
+
+        UpdateGiftText();
     }
 
     private void UpdateGiftText()
     {
-        giftsText.text = $"Gifts Planted: {giftsPlanted}/{totalTrees}"; // Updating the placeholder text to "Gifts planted: " + n/n
+        giftsText.text = $"Gifts Planted: {giftsPlanted}/{totalTrees}";
+
+        if (escapeUnlocked)
+        {
+            giftsText.color = escapeReadyColor;
+        }
+    }
+
+    private void ShowEscapeUI()
+    {
+        if (escapeText == null)
+            return;
+
+        Color c = escapeText.color;
+        c.a = 1f;
+        escapeText.color = c;
     }
 
     private string FormatTime(float t)
     {
         int minutes = Mathf.FloorToInt(t / 60f);
         float seconds = t % 60f;
+        return string.Format("{0:0}:{1:00.00}", minutes, seconds);
+    }
 
-        return string.Format("{00:0}:{1:00.00}", minutes, seconds); // Formatting using minutes and seconds
+    private void CueEscape()
+    {
+        Debug.Log("All gifts planted! Escape unlocked.");
+
+        if (escapeTrigger != null)
+        {
+            escapeTrigger.EnableEscape();
+        }
     }
 
     private void WinGame()
     {
-        Debug.Log("Player has won the game");
-        gameWinPanel.SetActive(true);   // Show win screen
-        gameHud.SetActive(false);
-        Time.timeScale = 0f;            // Pause time
+        timerRunning = false;
+        finalTimeText.text = FormatTime(levelTimer);
 
-        timerRunning = false;           // Stop timer
-        finalTimeText.text = FormatTime(levelTimer);    // Time formatting function is called
+        SaveBestTime();
 
-        // If SFX Manager source is existing and connected...
         if (sfxSource)
         {
-            // Play sound effects if they are existing and connected
             if (cheeringSFX)
                 sfxSource.PlayOneShot(cheeringSFX, 0.2f);
             if (hohohoSFX)
                 sfxSource.PlayOneShot(hohohoSFX, 0.2f);
         }
+
+        FindObjectOfType<MenuController>().ShowWin();
     }
+
 
     private void LoseGame()
     {
-        Debug.Log("Player has lost the game");
-        gameHud.SetActive(false);
-        gameOverPanel.SetActive(true);
-        Time.timeScale = 0f;
-        //gameOverMenu.GameOverLock();       
+        if (loseHandled)
+            return;
+
+        loseHandled = true;
+        FindObjectOfType<MenuController>().ShowLose();
+    }
+
+    private void SaveBestTime()
+    {
+        string levelKey = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        string prefKey = $"BestTime_{levelKey}";
+
+        float previousBest = PlayerPrefs.GetFloat(prefKey, float.MaxValue);
+
+        if (levelTimer < previousBest)
+        {
+            isNewBest = true;
+            PlayerPrefs.SetFloat(prefKey, levelTimer);
+            PlayerPrefs.Save();
+        }
+        else
+        {
+            isNewBest = false;
+        }
     }
 }

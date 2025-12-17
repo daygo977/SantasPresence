@@ -1,56 +1,42 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class MenuMusic : MonoBehaviour
 {
-    public AudioSource musicSource;             // Music source
-    public float fadeDuration = 4f;             // Amount of time to fade to 0
-    public float targetVol;                     // The target volume, (sometimes it's best if we don't set this to 1 for all music)
+    public AudioSource musicSource;
+    public AudioMixer audioMixer;
 
-    // Ensure musicSource is assigned so we can start fading in the music with FadeIn()
+    public float fadeOutDuration = 2f;
+
     void Start()
     {
         if (musicSource == null)
             musicSource = GetComponent<AudioSource>();
 
-        StartCoroutine(FadeIn());
-    }
-
-    // Starting from volume: 0, we interpolate the volume throughout a duration until we reach the target volume
-    public IEnumerator FadeIn()
-    {
-        float startVol = 0f;
-
-        float t = 0f;
-
-        // make sure audio actually plays
         if (!musicSource.isPlaying)
             musicSource.Play();
 
-        while (t < fadeDuration)
-        {
-            t += Time.deltaTime;
-            musicSource.volume = Mathf.Lerp(startVol, targetVol, t / fadeDuration);
-            yield return null;
-        }
-
-        musicSource.volume = targetVol;
+        PersistentSettings.Instance.ApplyVolumes();
     }
 
-    // Similar to function above, but fading out the music rather than fading in
+
     public IEnumerator FadeOut()
     {
-        float startVol = musicSource.volume;
         float t = 0f;
 
-        while (t < fadeDuration)
+        // start from current saved volume
+        float startVolume = PersistentSettings.Instance.musicVolume;
+
+        while (t < fadeOutDuration)
         {
-            t += Time.deltaTime;
-            musicSource.volume = Mathf.Lerp(startVol, 0f, t / fadeDuration);
+            t += Time.unscaledDeltaTime; // important if Time.timeScale = 0
+            float v = Mathf.Lerp(startVolume, -80f, t / fadeOutDuration);
+            audioMixer.SetFloat("musicVolume", v);
             yield return null;
         }
 
-        musicSource.volume = 0f;
+        audioMixer.SetFloat("musicVolume", -80f);
         musicSource.Stop();
     }
 }
