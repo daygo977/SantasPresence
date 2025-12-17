@@ -1827,6 +1827,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: casual_Male_K
       objectReference: {fileID: 0}
+    - target: {fileID: 5838175529488836818, guid: 2435736d6adca23458edd7c80c901e3e,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 27625ccad7bdcec42b99626637b8d1cc, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1925,19 +1930,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   radius: 0
   angle: 0
-  playerRef: {fileID: 0}
   targetMask:
     serializedVersion: 2
     m_Bits: 256
   obstructionMask:
     serializedVersion: 2
     m_Bits: 512
-  canSeePlayer: 0
-  showVisionConeGiz: 1
   timeToLose: 3
   detectionDecayRate: 1
-  detectionTimer: 0
-  gameOverMenu: {fileID: 0}
+  canSeePlayer: 0
+  showVisionConeGiz: 1
 --- !u!1 &86090584
 GameObject:
   m_ObjectHideFlags: 0
@@ -13388,8 +13390,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioMixer: {fileID: 24100000, guid: aa55e85c56b52d44aaee4061c66e368a, type: 2}
+  musicSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
   optionsMenu: {fileID: 463072854}
   pauseMenu: {fileID: 1216217234}
+  bestTimesUI: {fileID: 0}
 --- !u!114 &719696209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31341,6 +31346,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1062303292210733664, guid: 87a7b985b15a4244091de35d7df9169a,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 27625ccad7bdcec42b99626637b8d1cc, type: 2}
     - target: {fileID: 5986958801767457440, guid: 87a7b985b15a4244091de35d7df9169a,
         type: 3}
       propertyPath: m_Name
@@ -31499,19 +31509,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   radius: 0
   angle: 0
-  playerRef: {fileID: 0}
   targetMask:
     serializedVersion: 2
     m_Bits: 0
   obstructionMask:
     serializedVersion: 2
     m_Bits: 0
-  canSeePlayer: 0
-  showVisionConeGiz: 0
   timeToLose: 3
   detectionDecayRate: 1
-  detectionTimer: 0
-  gameOverMenu: {fileID: 0}
+  canSeePlayer: 0
+  showVisionConeGiz: 0
 --- !u!1 &1798099317
 GameObject:
   m_ObjectHideFlags: 0
