@@ -6292,7 +6292,6 @@ MonoBehaviour:
   investigateDuration: 6
   loseSightDelay: 2
   patrolRoute: []
-  showAIPerceptionGizmos: 1
   fov: {fileID: 824531910}
   playerTag: Player
   driveSuspicionDecay: 1
@@ -6300,6 +6299,16 @@ MonoBehaviour:
   roamDecayMultiplier: 2
   investigateDecayMultiplier: 0.35
   huntDecayMultiplier: 0
+  showAIPerceptionGizmos: 1
+  showNodesGizmos: 1
+  roamNodesRoot: {fileID: 0}
+  nodeGizmosMaxDrawDistance: 60
+  unvisitedNodeColor: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+  visitedNodeColor: {r: 0, g: 1, b: 0, a: 1}
+  currentTargetColor: {r: 1, g: 1, b: 1, a: 1}
+  queuedTargetColor: {r: 1, g: 0, b: 1, a: 1}
+  resetVisitedWhenAllVisited: 1
+  resetTargetWhenAllVisited: 1
 --- !u!195 &824531917
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -11559,6 +11568,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5986958801767457440, guid: 87a7b985b15a4244091de35d7df9169a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6073252102561887968, guid: 87a7b985b15a4244091de35d7df9169a,
         type: 3}
@@ -17978,7 +17992,6 @@ MonoBehaviour:
   - {fileID: 294677827}
   - {fileID: 650487667}
   - {fileID: 1640200912}
-  showAIPerceptionGizmos: 1
   fov: {fileID: 2071501956}
   playerTag: Player
   driveSuspicionDecay: 1
@@ -17986,6 +17999,16 @@ MonoBehaviour:
   roamDecayMultiplier: 2
   investigateDecayMultiplier: 0.35
   huntDecayMultiplier: 0
+  showAIPerceptionGizmos: 1
+  showNodesGizmos: 1
+  roamNodesRoot: {fileID: 0}
+  nodeGizmosMaxDrawDistance: 60
+  unvisitedNodeColor: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+  visitedNodeColor: {r: 0, g: 1, b: 0, a: 1}
+  currentTargetColor: {r: 1, g: 1, b: 1, a: 1}
+  queuedTargetColor: {r: 1, g: 0, b: 1, a: 1}
+  resetVisitedWhenAllVisited: 1
+  resetTargetWhenAllVisited: 1
 --- !u!1001 &2074416716
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19906,6 +19929,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: PlateOfCookies
+      objectReference: {fileID: 0}
+    - target: {fileID: 5789297628817815608, guid: efaa38db04550dd4e82a5e06c884ea34,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9147945625281948113, guid: efaa38db04550dd4e82a5e06c884ea34,
         type: 3}

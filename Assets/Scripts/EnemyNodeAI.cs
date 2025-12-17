@@ -48,9 +48,6 @@ public class EnemyNodeAI : MonoBehaviour
 
     private float investigateEndTime;
 
-    [Header("Debug Gizmos")]
-    public bool showAIPerceptionGizmos=true;
-
     [Header("Sensing")]
     public FieldOfView fov;
     public string playerTag="Player";
@@ -72,8 +69,28 @@ public class EnemyNodeAI : MonoBehaviour
     [Tooltip("Multiplier applied to FOV's starting detectionDecayRate while Hunting. Set 0 = no decay")]
     public float huntDecayMultiplier=0f;
 
-    private float baseDecayRate = 1f;
-    private bool baseDecayCaptured = false;
+    private float baseDecayRate=1f;
+    private bool baseDecayCaptured=false;
+
+    [Header("Debug Gizmos")]
+    public bool showAIPerceptionGizmos=true;
+    
+    [Header("Node Gizmos")]
+    public bool showNodesGizmos=true;
+
+    [Tooltip("Optional: assign MapNodes parent transform to only draw/count roam nodes")]
+    public Transform roamNodesRoot;
+
+    public float nodeGizmosMaxDrawDistance=60f;
+
+    public Color unvisitedNodeColor=new Color(0.6f,0.6f,0.6f,1f);
+    public Color visitedNodeColor=Color.green;
+    public Color currentTargetColor=Color.white;
+    public Color queuedTargetColor=Color.magenta;
+
+    [Header("Visited Reset")]
+    public bool resetVisitedWhenAllVisited=true;
+    public bool resetTargetWhenAllVisited=true;
 
     /// <summary>
     /// Called in editor when script is added or reset.
@@ -146,11 +163,12 @@ public class EnemyNodeAI : MonoBehaviour
                 }
         }
 
+        CheckNodePerception(); //Check nearby nodes
+
         switch (state)
         {
             case State.Patrol:
-                UpdatePatrol();         //Logic for following patrol route
-                CheckNodePerception(); //Check nearby nodes
+                UpdatePatrol();  //Logic for following patrol route
                 break;
             
             case State.RoamMap:
@@ -225,8 +243,8 @@ public class EnemyNodeAI : MonoBehaviour
 
     private void UpdateNodeRoam(Vector3? filterCenter, float filterRadius)
     {
-        //Mark nearby nodes as visited when being passed
-        CheckNodePerception();
+        //Visited reset, only clears visited, does not wipe current plan
+        TryResetVisitedIfAllVisited();
         
         //Initialize target if we don't have one
         if (!currentTarget)
@@ -239,29 +257,37 @@ public class EnemyNodeAI : MonoBehaviour
         if (HasReached(currentTarget.transform.position))
         {   
             visited.Add(currentTarget);
+            TryResetVisitedIfAllVisited();
+
+            //Prefer queued node, if we got one, else pick fresh next node near one we reached
+            AINode next = queuedNext? queuedNext : PickNextQueued(fromNode: currentTarget, filterCenter, filterRadius);
+            queuedNext=null;
 
             //Swap queued next node to current, then pick new next
-            if (queuedNext)
+            if (next)
             {
-                currentTarget=queuedNext;
+                currentTarget=next;
                 queuedNext=PickNextQueued(fromNode: currentTarget, filterCenter, filterRadius);
+
+                //Force immediate repath so movement matches new target this frame
+                ForceDestination(currentTarget.transform.position);
             }
             else
             {
-                //If queue empty, go back
-                queuedNext=PickNextQueued(fromNode: currentTarget, filterCenter, filterRadius);
+                //No valid next node, reinitialize next frame
+                currentTarget=null;
+                queuedNext=null;
+                return;
             }
         }
 
-        SetDestinationIfReady(currentTarget.transform.position);
-        
-        //Prevents getting stuck in visited loop
-        if(!queuedNext && visited.Count>0 && visited.Count > 20)
+        if (!currentTarget)
         {
-            visited.Clear();
-            currentTarget=null;
-            queuedNext=null;
+            PickInitialTargets(filterCenter, filterRadius);
+            return;
         }
+
+        SetDestinationIfReady(currentTarget.transform.position);
     }
 
     private void PickInitialTargets(Vector3? filterCenter, float filterRadius)
@@ -282,7 +308,7 @@ public class EnemyNodeAI : MonoBehaviour
         //Look ahead for queued node
         queuedNext=PickNextQueued(fromNode: currentTarget, filterCenter, filterRadius);
 
-        SetDestinationIfReady(currentTarget.transform.position);
+        ForceDestination(currentTarget.transform.position);
     }
 
     private AINode PickRandomCandidateNode(Vector3? filterCenter, float filterRadius)
@@ -311,7 +337,7 @@ public class EnemyNodeAI : MonoBehaviour
             //Use distance filter (for investigate state)
             if (filterCenter.HasValue)
             {
-                if ((n.transform.position - filterCenter.Value).sqrMagnitude > filterRadius * filterRadius)
+                if ((n.transform.position-filterCenter.Value).sqrMagnitude > filterRadius*filterRadius)
                 {
                     continue;
                 }
@@ -342,7 +368,7 @@ public class EnemyNodeAI : MonoBehaviour
         float bestDist=float.MaxValue;
 
         //Use neighbors if possible, else check all nodes
-        var options=fromNode.neighbors.Count>0? fromNode.neighbors : (List<AINode>)NodeGraph.Instance.AllNodes;
+        IEnumerable<AINode> options=(fromNode.neighbors != null && fromNode.neighbors.Count > 0)? fromNode.neighbors : NodeGraph.Instance.AllNodes;
 
         foreach (var n in options)
         {
@@ -354,7 +380,7 @@ public class EnemyNodeAI : MonoBehaviour
             //Use investigation radius filter
             if (filterCenter.HasValue)
             {
-                if ((n.transform.position - filterCenter.Value).sqrMagnitude > filterRadius * filterRadius)
+                if ((n.transform.position-filterCenter.Value).sqrMagnitude > filterRadius*filterRadius)
                 {
                     continue;
                 }
@@ -368,11 +394,10 @@ public class EnemyNodeAI : MonoBehaviour
             }
         }
         
-        // If no valid next node, reset visited and try again
+        // If no valid next node, go back to random unvisited reachable node
         if (!best)
         {
-            visited.Clear();
-            best=PickRandomCandidateNode(filterCenter, filterRadius);
+            best = PickRandomCandidateNode(filterCenter, filterRadius);
         }
         return best;
     }
@@ -428,19 +453,13 @@ public class EnemyNodeAI : MonoBehaviour
         state=newState;
         Debug.Log($"{name} switched to state: {state}");
 
-        // Clear node selection whenever we enter roam state, so it re-initializes
-        if (state == State.RoamMap)
+        //Clear roam targets whenever we change state
+        currentTarget = null;
+        queuedNext = null;
+
+        if (state == State.Investigate)
         {
-            visited.Clear();
-            currentTarget=null;
-            queuedNext=null;
-        }
-        else if (state == State.Investigate)
-        {
-            visited.Clear();
-            currentTarget=null;
-            queuedNext=null;
-            investigateEndTime=Time.time+investigateDuration;
+            investigateEndTime = Time.time+investigateDuration;
         }
 
         ApplySuspicionDecayForState();
@@ -485,16 +504,23 @@ public class EnemyNodeAI : MonoBehaviour
             return;
         }
 
-        var nearNodes=NodeGraph.Instance.GetNodeInRadius(transform.position, perceptionRadius);
-        foreach (var n in nearNodes)
-        {
-            visited.Add(n);
-        }
-    }
+        float r2 = perceptionRadius*perceptionRadius;
+        Vector3 p = transform.position;
 
-    private bool IsWithinPerception(Vector3 pos)
-    {
-        return (pos-transform.position).sqrMagnitude <= perceptionRadius*perceptionRadius;
+        //perception, distance check against all nodes, bug fix: prevents nodes from flashing (when using gizmos)
+        //from showing all green out of nowhere
+        foreach (var n in NodeGraph.Instance.AllNodes)
+        {
+            if (!n) continue;
+
+            Vector3 d = n.transform.position-p;
+            d.y = 0f;
+
+            if (d.sqrMagnitude <= r2)
+            {
+                visited.Add(n);
+            }
+        }
     }
 
     /// <summary>
@@ -529,18 +555,21 @@ public class EnemyNodeAI : MonoBehaviour
         if (agent != null && agent.isOnNavMesh)
         {
             agent.SetDestination(pos);
-        } 
-
-        if (agent.isOnNavMesh)
-        {
-            agent.SetDestination(pos);
         }
     }
+
+    private void ForceDestination(Vector3 pos)
+    {
+        nextRepathTime = 0f;
+        if (agent != null && agent.isOnNavMesh)
+            agent.SetDestination(pos);
+    }
+
 
     // Checks if a complete NavMesh path exists to the position
     private bool IsReachable(Vector3 pos)
     {
-        if (!agent.isOnNavMesh)
+        if (agent==null || !agent.isOnNavMesh)
         {
             return false;
         }
@@ -554,6 +583,63 @@ public class EnemyNodeAI : MonoBehaviour
         return path.status==NavMeshPathStatus.PathComplete;
     }
 
+    private bool IsRelevantRoamNode(AINode n)
+    {
+        if (!n)
+        {
+            return false;
+        }
+        if (roamNodesRoot == null)
+        {
+            return true;
+        }
+        return n.transform.IsChildOf(roamNodesRoot);
+    }
+
+    private void TryResetVisitedIfAllVisited()
+    {
+        if (!resetVisitedWhenAllVisited)
+        {
+            return;
+        }
+        if (NodeGraph.Instance == null)
+        {
+            return;
+        }
+        if (state != State.RoamMap && state != State.Investigate)
+        {
+            return;
+        }
+
+        int total=0;
+        foreach (var n in NodeGraph.Instance.AllNodes)
+        {
+            if (IsRelevantRoamNode(n))
+            {
+                total++;
+            }
+        }
+
+        if (total <= 0)
+        {
+            return;
+        }
+
+        int visitedRelevant=0;
+        foreach (var n in visited)
+        {
+            if (IsRelevantRoamNode(n))
+            {
+                visitedRelevant++;
+            }
+        }
+
+        if (visitedRelevant >= total)
+        {
+            visited.Clear();
+        }
+    }
+
     private void OnDrawGizmosSelected()
     {
         if (!showAIPerceptionGizmos)
@@ -561,6 +647,7 @@ public class EnemyNodeAI : MonoBehaviour
             return;
         }
 
+        //Perception radius (node checker)
         Gizmos.color=Color.yellow;
         Gizmos.DrawWireSphere(transform.position, perceptionRadius);
 
@@ -569,17 +656,48 @@ public class EnemyNodeAI : MonoBehaviour
             return;
         }
 
+        //Investigate Circle
         if (state == State.Investigate)
         {
             Gizmos.color=Color.cyan;
-            Gizmos.DrawWireSphere(lastKnownPos, investigateRadius);
+            Gizmos.DrawWireSphere(lastKnownPos, investigateRadius);   
         }
 
-        if (currentTarget != null)
+        //Draw Nodes (visited/unvisited)
+        if (showNodesGizmos && NodeGraph.Instance != null)
+        {
+            float maxDistSqr=nodeGizmosMaxDrawDistance*nodeGizmosMaxDrawDistance;
+
+            foreach (var n in NodeGraph.Instance.AllNodes)
+            {
+                if (!IsRelevantRoamNode(n)){
+                    continue;
+                }   
+                if ((n.transform.position-transform.position).sqrMagnitude > maxDistSqr)
+                {
+                    continue;
+                }
+
+                Gizmos.color=visited.Contains(n)? visitedNodeColor : unvisitedNodeColor;
+                Gizmos.DrawSphere(n.transform.position, 0.3f);
+            }
+        }
+
+        //Current target
+        if (currentTarget!=null)
         {
             Gizmos.color=Color.white;
             Gizmos.DrawLine(transform.position, currentTarget.transform.position);
             Gizmos.DrawWireSphere(currentTarget.transform.position, 0.25f);
+        }
+
+        if (queuedNext!=null)
+        {
+            Gizmos.color=queuedTargetColor;
+
+            Vector3 from=(currentTarget!=null)? currentTarget.transform.position : transform.position;
+            Gizmos.DrawLine(from, queuedNext.transform.position);
+            Gizmos.DrawWireSphere(queuedNext.transform.position, 0.3f);
         }
     }
 }
