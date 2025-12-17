@@ -51,5 +51,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "SantasPresence.sln"
+    "dotnet.defaultSolution": "Santa's Presence.sln"
 }
