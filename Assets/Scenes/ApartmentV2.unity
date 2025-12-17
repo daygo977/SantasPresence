@@ -6605,6 +6605,7 @@ GameObject:
   - component: {fileID: 689421404}
   - component: {fileID: 689421403}
   - component: {fileID: 689421402}
+  - component: {fileID: 689421408}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -6761,6 +6762,20 @@ Transform:
   - {fileID: 1240898373}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &689421408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 689421401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ce1a9e4a08100f4680ff744a2d36994, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DistanceOpen: 3
+  text: {fileID: 1683276755}
 --- !u!1001 &691218916
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13307,7 +13322,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.043333333
+  m_VoxelSize: 0.04
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: a235d96935b84d1459ae6b8f9339002b, type: 2}
   m_BuildHeightMesh: 0
@@ -15613,7 +15628,7 @@ GameObject:
   - component: {fileID: 1683276758}
   - component: {fileID: 1683276757}
   m_Layer: 5
-  m_Name: holdE
+  m_Name: holdF
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15672,7 +15687,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: PRESS "E"
+  m_Text: PRESS "F"
 --- !u!222 &1683276758
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -23289,7 +23304,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4479633389646933311
 RectTransform:
   m_ObjectHideFlags: 0
