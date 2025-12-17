@@ -34,7 +34,6 @@ public class PersistentSettings : MonoBehaviour
     {
         audioMixer.SetFloat("musicVolume", musicVolume);
         audioMixer.SetFloat("sfxVolume", sfxVolume);
-        Debug.Log($"ApplyVolumes | music={musicVolume}, sfx={sfxVolume}");
 
     }
 

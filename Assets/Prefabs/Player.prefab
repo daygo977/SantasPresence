@@ -293,7 +293,7 @@ MonoBehaviour:
   crouchNoiseRadius: 2
   enemyLayer:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 0
 --- !u!1 &8310873727011505066
 GameObject:
   m_ObjectHideFlags: 0
