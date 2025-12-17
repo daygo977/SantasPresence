@@ -5630,6 +5630,7 @@ GameObject:
   - component: {fileID: 689421403}
   - component: {fileID: 689421402}
   - component: {fileID: 689421408}
+  - component: {fileID: 689421409}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -5654,6 +5655,7 @@ MonoBehaviour:
   crouchSpeed: 1.5
   gravity: -9.81
   allowAirControl: 0
+  speedMultiplier: 1
   runKey: 304
   crouchKey: 306
   peekLeftKey: 113
@@ -5800,6 +5802,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DistanceOpen: 3
   text: {fileID: 1683276755}
+--- !u!114 &689421409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 689421401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe00ff42cc31407448cd8d9129c1972a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 689421402}
+  source: {fileID: 590203063}
+  footstepClip: {fileID: 8300000, guid: bc66dae1564ce1949991e6cd44b28a82, type: 3}
+  walkInterval: 0.5
+  runInterval: 0.3
+  crouchInterval: 0.7
+  pitchRange: {x: 0.97, y: 1.03}
+  minStepCooldown: 0.2
+  minDistancePerStep: 0.88
+  walkNoiseRadius: 5
+  runNoiseRadius: 10
+  crouchNoiseRadius: 2
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1001 &691218916
 PrefabInstance:
   m_ObjectHideFlags: 0

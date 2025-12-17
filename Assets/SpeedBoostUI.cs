@@ -21,14 +21,14 @@ public class SpeedBoostUI : MonoBehaviour
 
     void OnEnable()
     {
-        FPPlayerController.OnSpeedBoostStarted += OnBoostStarted;
-        FPPlayerController.OnSpeedBoostEnded += OnBoostEnded;
+        FirstPersonPlayer.OnSpeedBoostStarted += OnBoostStarted;
+        FirstPersonPlayer.OnSpeedBoostEnded += OnBoostEnded;
     }
 
     void OnDisable()
     {
-        FPPlayerController.OnSpeedBoostStarted -= OnBoostStarted;
-        FPPlayerController.OnSpeedBoostEnded -= OnBoostEnded;
+        FirstPersonPlayer.OnSpeedBoostStarted -= OnBoostStarted;
+        FirstPersonPlayer.OnSpeedBoostEnded -= OnBoostEnded;
     }
 
     void OnBoostStarted(float duration)

@@ -3,22 +3,25 @@ using UnityEngine.Audio;
 
 public class PlayerFootsteps : MonoBehaviour
 {
-    public FPPlayerController player;
+    [Header("References")]
+    public FirstPersonPlayer player;
     public AudioSource source;
     public AudioClip footstepClip;
 
+    [Header("Step Timing")]
     public float walkInterval = 0.5f;
     public float runInterval = 0.3f;
     public float crouchInterval = 0.7f;
 
+    [Header("Audio")]
     public Vector2 pitchRange = new Vector2(0.97f, 1.03f);
 
     private double nextStepTime;
     private bool wasMovingLastFrame;
 
     [Header("Anti-Spam")]
-    public float minStepCooldown = 0.2f;      // absolute minimum time between steps
-    public float minDistancePerStep = 0.88f;  // minimum movement distance
+    public float minStepCooldown = 0.2f;
+    public float minDistancePerStep = 0.88f;
 
     private double lastStepTime;
     private Vector3 lastStepPosition;
@@ -27,7 +30,6 @@ public class PlayerFootsteps : MonoBehaviour
     public float walkNoiseRadius = 5f;
     public float runNoiseRadius = 10f;
     public float crouchNoiseRadius = 2f;
-
     public LayerMask enemyLayer;
 
     void Start()
@@ -35,8 +37,9 @@ public class PlayerFootsteps : MonoBehaviour
         source.playOnAwake = false;
         source.loop = false;
 
-        nextStepTime = AudioSettings.dspTime;
-        lastStepTime = AudioSettings.dspTime;
+        double dsp = AudioSettings.dspTime;
+        nextStepTime = dsp;
+        lastStepTime = dsp;
         lastStepPosition = transform.position;
     }
 
@@ -47,31 +50,25 @@ public class PlayerFootsteps : MonoBehaviour
 
     void HandleFootsteps()
     {
-        float interval;
-        bool isMoving = true;
-
-        switch (player.currentState)
+        // not moving = no footsteps
+        if (!player || !player.IsMoving)
         {
-            case FPPlayerController.MoveState.Walk:
-                interval = walkInterval;
-                break;
-
-            case FPPlayerController.MoveState.Run:
-                interval = runInterval;
-                break;
-
-            case FPPlayerController.MoveState.Crouch:
-                interval = crouchInterval;
-                break;
-
-            default:
-                wasMovingLastFrame = false;
-                return;
+            wasMovingLastFrame = false;
+            return;
         }
+
+        float interval;
+
+        if (player.IsCrouching)
+            interval = crouchInterval;
+        else if (player.IsRunning)
+            interval = runInterval;
+        else
+            interval = walkInterval;
 
         double dspTime = AudioSettings.dspTime;
 
-        // reset timing cleanly when starting movement
+        // clean reset when movement starts
         if (!wasMovingLastFrame)
         {
             nextStepTime = dspTime;
@@ -107,22 +104,14 @@ public class PlayerFootsteps : MonoBehaviour
 
     void EmitNoise()
     {
-        float radius = 0f;
+        float radius;
 
-        switch (player.currentState)
-        {
-            case FPPlayerController.MoveState.Walk:
-                radius = walkNoiseRadius;
-                break;
-
-            case FPPlayerController.MoveState.Run:
-                radius = runNoiseRadius;
-                break;
-
-            case FPPlayerController.MoveState.Crouch:
-                radius = crouchNoiseRadius;
-                break;
-        }
+        if (player.IsCrouching)
+            radius = crouchNoiseRadius;
+        else if (player.IsRunning)
+            radius = runNoiseRadius;
+        else
+            radius = walkNoiseRadius;
 
         Collider[] hits = Physics.OverlapSphere(
             transform.position,
@@ -139,6 +128,4 @@ public class PlayerFootsteps : MonoBehaviour
             }
         }
     }
-
-
 }
