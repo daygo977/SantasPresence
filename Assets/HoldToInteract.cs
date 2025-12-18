@@ -6,6 +6,7 @@ public class HoldToInteract : MonoBehaviour
     public float holdTime = 6f; // Amount of time needed for the player to hold E to plant the presents by the tree
     public GameObject uiObject; // UI Panel "PlantUI" to pop up as a prompt on screen
     public Slider progressSlider; // Progress bar to indicate how long we've held E for
+    private ShowPresents showPresents; //determines if present are shown if player interacts with tree *KS
 
     private bool playerInside = false; // Initially false
     private float holdProgress = 0f; // Initially 0
@@ -27,6 +28,7 @@ public class HoldToInteract : MonoBehaviour
         uiObject.SetActive(false); // Initially hidden
         progressSlider.value = 0f; // Initially 0 for slider
 
+        showPresents = GetComponent<ShowPresents>(); // gets specific tree model *KS
         GameManager.Instance.RegisterTree();
     }
 
@@ -66,6 +68,10 @@ public class HoldToInteract : MonoBehaviour
         playerInside = false;
 
         GameManager.Instance.PlantGift();
+
+        if (showPresents != null){ // *KS calls ShowPresents.script
+            showPresents.ShowPresent();
+        }
 
         PlayPlantSound();
         EmitPlantNoise();
