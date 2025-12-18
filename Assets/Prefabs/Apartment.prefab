@@ -5520,7 +5520,7 @@ MonoBehaviour:
   holdTime: 3
   uiObject: {fileID: 0}
   progressSlider: {fileID: 0}
-  speedMultiplier: 1.25
+  speedMultiplier: 1.3
   boostDuration: 8
   audioSource: {fileID: 0}
   eatSound: {fileID: 8300000, guid: f25e5717dfa2bf74ba9ff7f0810bc417, type: 3}

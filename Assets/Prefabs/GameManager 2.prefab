@@ -55,6 +55,6 @@ MonoBehaviour:
   sfxSource: {fileID: 0}
   cheeringSFX: {fileID: 8300000, guid: e08861f1981beac498b7c91e2673d453, type: 3}
   hohohoSFX: {fileID: 8300000, guid: da8c9fab3420dd44399c6a71ae24259c, type: 3}
-  lostGame: 0
-  escapeTrigger: {fileID: 0}
+  escapeTriggers: []
   isNewBest: 0
+  lostGame: 0

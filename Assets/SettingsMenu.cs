@@ -43,8 +43,8 @@ public class SettingsMenu : MonoBehaviour
 
     public void ResetBestTimes()
     {
-        ResetLevelBest("Apartment");
-        // ResetLevelBest("Forest"); // CHANGE THIS TO SECOND LEVEL NAME!// CHANGE THIS TO SECOND LEVEL NAME!// CHANGE THIS TO SECOND LEVEL NAME!
+        ResetLevelBest("ApartmentV2");
+        ResetLevelBest("HouseV2");
 
         PlayerPrefs.Save();
 

@@ -27,7 +27,7 @@ public class HoldToEatCookies : MonoBehaviour
     public float eatNoiseRadius = 4f;
     public LayerMask enemyLayer;
 
-    private FPPlayerController player;
+    private FirstPersonPlayer player;
 
     void Start()
     {
@@ -107,7 +107,7 @@ public class HoldToEatCookies : MonoBehaviour
         {
             playerInside = true;
             uiObject.SetActive(true);
-            player = other.GetComponent<FPPlayerController>();
+            player = other.GetComponent<FirstPersonPlayer>();
         }
     }
 

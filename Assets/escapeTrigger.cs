@@ -1,17 +1,16 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
-public class EscapeTrigger : MonoBehaviour
+public class escapeTrigger : MonoBehaviour
 {
     private bool isActive = false;
 
     private void Awake()
     {
-        // ensure trigger collider
         Collider col = GetComponent<Collider>();
         col.isTrigger = true;
 
-        gameObject.SetActive(false); // start disabled
+        gameObject.SetActive(false);
     }
 
     public void EnableEscape()
@@ -27,7 +26,7 @@ public class EscapeTrigger : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
-            GameManager.Instance.SendMessage("WinGame", SendMessageOptions.DontRequireReceiver);
+            GameManager.Instance.WinGame();
         }
     }
 }

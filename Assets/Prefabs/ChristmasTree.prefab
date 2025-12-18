@@ -656,6 +656,13 @@ MonoBehaviour:
   holdTime: 4
   uiObject: {fileID: 0}
   progressSlider: {fileID: 0}
+  audioSource: {fileID: 0}
+  plantSound: {fileID: 8300000, guid: 6853d2f139d9a6e4587aef49928e7e44, type: 3}
+  plantVolume: 0.25
+  plantNoiseRadius: 8
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!65 &4555783719644225602
 BoxCollider:
   m_ObjectHideFlags: 0

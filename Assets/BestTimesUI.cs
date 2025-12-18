@@ -13,8 +13,8 @@ public class BestTimesUI : MonoBehaviour
 
     public void Refresh()
     {
-        level1BestText.text = GetBestTimeText("Apartment");
-        level2BestText.text = GetBestTimeText("Forest");
+        level1BestText.text = GetBestTimeText("ApartmentV2");
+        level2BestText.text = GetBestTimeText("HouseV2");
     }
 
     private string GetBestTimeText(string levelName)

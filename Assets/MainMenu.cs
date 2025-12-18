@@ -31,11 +31,6 @@ public class MainMenu : MonoBehaviour
         StartCoroutine(DelayStart(2));
     }
 
-    public void PlayLevel3()
-    {
-        StartCoroutine(DelayStart(3));
-    }
-
     public void Options()
     {
         // If player clicks on options button
@@ -112,11 +107,11 @@ public class MainMenu : MonoBehaviour
 
         if (level == 1)
         {
-            SceneManager.LoadSceneAsync("Apartment");
+            SceneManager.LoadSceneAsync("ApartmentV2");
         }
         else
         {
-            SceneManager.LoadSceneAsync("Apartment");
+            SceneManager.LoadSceneAsync("HouseV2");
         }
     }
 

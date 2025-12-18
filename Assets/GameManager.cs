@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,33 +13,28 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     public TextMeshProUGUI giftsText;
     public GameObject gameHud;
-
     public TextMeshProUGUI hudTimerText;
     public TextMeshProUGUI finalTimeText;
 
     public TextMeshProUGUI escapeText;
     public Color escapeReadyColor = Color.green;
 
-
     [Header("Audio")]
     public AudioSource sfxSource;
     public AudioClip cheeringSFX;
     public AudioClip hohohoSFX;
 
+    [Header("Escape Triggers")]
+    public List<escapeTrigger> escapeTriggers = new List<escapeTrigger>();
+
     private float levelTimer = 0f;
     private bool timerRunning = false;
-
-    [HideInInspector]
-    public bool lostGame = false;
-
-    [Header("Escape")]
-    public EscapeTrigger escapeTrigger;
     private bool escapeUnlocked = false;
-
+    private bool hasWon = false;
     private bool loseHandled = false;
 
-    [HideInInspector]
-    public bool isNewBest = false;
+    [HideInInspector] public bool isNewBest = false;
+    [HideInInspector] public bool lostGame = false;
 
     private void Awake()
     {
@@ -57,7 +53,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     private void Start()
     {
         UpdateGiftText();
@@ -73,9 +68,7 @@ public class GameManager : MonoBehaviour
         }
 
         if (lostGame)
-        {
             LoseGame();
-        }
     }
 
     public void RegisterTree()
@@ -91,11 +84,31 @@ public class GameManager : MonoBehaviour
         if (!escapeUnlocked && giftsPlanted >= totalTrees)
         {
             escapeUnlocked = true;
-            CueEscape();
+            EnableAllEscapes();
             ShowEscapeUI();
         }
 
         UpdateGiftText();
+    }
+
+    private void EnableAllEscapes()
+    {
+        Debug.Log($"Enabling {escapeTriggers.Count} escape triggers");
+
+        foreach (var trigger in escapeTriggers)
+        {
+            if (trigger != null)
+                trigger.EnableEscape();
+        }
+    }
+
+    private void ShowEscapeUI()
+    {
+        if (!escapeText) return;
+
+        Color c = escapeText.color;
+        c.a = 1f;
+        escapeText.color = c;
     }
 
     private void UpdateGiftText()
@@ -103,43 +116,25 @@ public class GameManager : MonoBehaviour
         giftsText.text = $"Gifts Planted: {giftsPlanted}/{totalTrees}";
 
         if (escapeUnlocked)
-        {
             giftsText.color = escapeReadyColor;
-        }
-    }
-
-    private void ShowEscapeUI()
-    {
-        if (escapeText == null)
-            return;
-
-        Color c = escapeText.color;
-        c.a = 1f;
-        escapeText.color = c;
     }
 
     private string FormatTime(float t)
     {
         int minutes = Mathf.FloorToInt(t / 60f);
         float seconds = t % 60f;
-        return string.Format("{0:0}:{1:00.00}", minutes, seconds);
+        return $"{minutes:0}:{seconds:00.00}";
     }
 
-    private void CueEscape()
+    public void WinGame()
     {
-        Debug.Log("All gifts planted! Escape unlocked.");
+        if (hasWon)
+            return;
 
-        if (escapeTrigger != null)
-        {
-            escapeTrigger.EnableEscape();
-        }
-    }
-
-    private void WinGame()
-    {
+        hasWon = true;
         timerRunning = false;
-        finalTimeText.text = FormatTime(levelTimer);
 
+        finalTimeText.text = FormatTime(levelTimer);
         SaveBestTime();
 
         if (sfxSource)
@@ -152,7 +147,6 @@ public class GameManager : MonoBehaviour
 
         FindObjectOfType<MenuController>().ShowWin();
     }
-
 
     private void LoseGame()
     {
