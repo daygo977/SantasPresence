@@ -25,12 +25,12 @@ public class MenuMusic : MonoBehaviour
     {
         float t = 0f;
 
-        // start from current saved volume
+        // Start from current saved volume
         float startVolume = PersistentSettings.Instance.musicVolume;
 
         while (t < fadeOutDuration)
         {
-            t += Time.unscaledDeltaTime; // important if Time.timeScale = 0
+            t += Time.unscaledDeltaTime; // Important if Time.timeScale = 0
             float v = Mathf.Lerp(startVolume, -80f, t / fadeOutDuration);
             audioMixer.SetFloat("musicVolume", v);
             yield return null;

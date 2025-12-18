@@ -125,7 +125,14 @@ public class MenuController : MonoBehaviour
 
     public void QuitGame()
     {
-        Application.Quit();
+        if (UnityEditor.EditorApplication.isPlaying == true)
+        {
+            UnityEditor.EditorApplication.isPlaying = false;
+        }
+        else
+        {
+            Application.Quit();
+        }
     }
 
     private void CloseAllMenus()

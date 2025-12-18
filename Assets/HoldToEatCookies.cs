@@ -90,15 +90,6 @@ public class HoldToEatCookies : MonoBehaviour
             eatNoiseRadius,
             enemyLayer
         );
-
-        foreach (var hit in hits)
-        {
-            EnemyHearing enemy = hit.GetComponentInParent<EnemyHearing>();
-            if (enemy != null)
-            {
-                enemy.HearNoise(transform.position, eatNoiseRadius);
-            }
-        }
     }
 
     private void OnTriggerEnter(Collider other)

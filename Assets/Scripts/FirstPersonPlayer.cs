@@ -5,9 +5,6 @@ using System.Collections;
 [RequireComponent(typeof(CharacterController))]
 public class FirstPersonPlayer : MonoBehaviour
 {
-    /* =========================
-       MOVEMENT
-    ========================= */
     [Header("Movement")]
     public float walkSpeed = 3f;
     public float runSpeed = 6f;
@@ -18,65 +15,41 @@ public class FirstPersonPlayer : MonoBehaviour
     [Header("Speed Buff")]
     public float speedMultiplier = 1f;
 
-    /* =========================
-       INPUT
-    ========================= */
     [Header("Keys")]
     public KeyCode runKey = KeyCode.LeftShift;
     public KeyCode crouchKey = KeyCode.LeftControl;
     public KeyCode peekLeftKey = KeyCode.Q;
     public KeyCode peekRightKey = KeyCode.E;
 
-    /* =========================
-       LOOK
-    ========================= */
     [Header("Mouse Look")]
     public Transform cameraTransform;
     public float mouseSensitivity = 2f;
     public float maxLookUp = 80f;
     public float maxLookDown = -80f;
 
-    /* =========================
-       CROUCH
-    ========================= */
     [Header("Crouch")]
     public float standingHeight = 2f;
     public float crouchHeight = 1.1f;
     public float crouchTransitionSpeed = 8f;
 
-    /* =========================
-       PEEK
-    ========================= */
     [Header("Peeking")]
     public float peekAmount = 0.3f;
     public float peekSpeed = 8f;
 
-    /* =========================
-       NOISE
-    ========================= */
     [Header("Noise")]
     public float walkNoise = 0.4f;
     public float runNoise = 1.0f;
     public float crouchNoise = 0.05f;
     public float noiseSmoothSpeed = 10f;
 
-    /* =========================
-       PUBLIC STATE (AI / UI)
-    ========================= */
     public bool IsCrouching { get; private set; }
     public bool IsRunning { get; private set; }
     public bool IsMoving { get; private set; }
     public float CurrentNoise { get; private set; }
 
-    /* =========================
-       SPEED BOOST EVENTS
-    ========================= */
     public static event Action<float> OnSpeedBoostStarted;
     public static event Action OnSpeedBoostEnded;
 
-    /* =========================
-       PRIVATE
-    ========================= */
     private CharacterController controller;
     private float verticalVelocity;
     private float cameraPitch;
@@ -87,9 +60,6 @@ public class FirstPersonPlayer : MonoBehaviour
 
     private float peekValue;
 
-    /* =========================
-       UNITY
-    ========================= */
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -98,7 +68,7 @@ public class FirstPersonPlayer : MonoBehaviour
         {
             Camera cam = GetComponentInChildren<Camera>();
             if (cam) cameraTransform = cam.transform;
-            else Debug.LogError("FirstPersonPlayer: No camera found.");
+            else Debug.LogError("No camera found.");
         }
 
         standingHeight = controller.height;
@@ -120,9 +90,6 @@ public class FirstPersonPlayer : MonoBehaviour
         UpdateNoise();
     }
 
-    /* =========================
-       LOOK
-    ========================= */
     private void HandleLook()
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
@@ -137,9 +104,6 @@ public class FirstPersonPlayer : MonoBehaviour
         cameraTransform.localEulerAngles = new Vector3(cameraPitch, 0f, roll);
     }
 
-    /* =========================
-       MOVEMENT
-    ========================= */
     private void HandleMovementAndStates()
     {
         float inputX = Input.GetAxisRaw("Horizontal");
@@ -175,9 +139,6 @@ public class FirstPersonPlayer : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
-    /* =========================
-       CROUCH
-    ========================= */
     private void HandleCrouch()
     {
         float target = IsCrouching ? 1f : 0f;
@@ -196,9 +157,6 @@ public class FirstPersonPlayer : MonoBehaviour
         );
     }
 
-    /* =========================
-       PEEK
-    ========================= */
     private void HandlePeek()
     {
         float targetPeek = 0f;
@@ -208,9 +166,6 @@ public class FirstPersonPlayer : MonoBehaviour
         peekValue = Mathf.MoveTowards(peekValue, targetPeek, peekSpeed * Time.deltaTime);
     }
 
-    /* =========================
-       NOISE
-    ========================= */
     private void UpdateNoise()
     {
         float targetNoise = 0f;
@@ -225,9 +180,7 @@ public class FirstPersonPlayer : MonoBehaviour
         CurrentNoise = Mathf.Lerp(CurrentNoise, targetNoise, noiseSmoothSpeed * Time.deltaTime);
     }
 
-    /* =========================
-       SPEED BOOST API
-    ========================= */
+    // Used for when cookies are consumed, modifying the speed multiplier and the duration of the speed boost
     public void ApplySpeedBoost(float multiplier, float duration)
     {
         StopAllCoroutines();

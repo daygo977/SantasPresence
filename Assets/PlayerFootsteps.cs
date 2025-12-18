@@ -50,7 +50,7 @@ public class PlayerFootsteps : MonoBehaviour
 
     void HandleFootsteps()
     {
-        // not moving = no footsteps
+        // Not moving = no footsteps
         if (!player || !player.IsMoving)
         {
             wasMovingLastFrame = false;
@@ -68,7 +68,7 @@ public class PlayerFootsteps : MonoBehaviour
 
         double dspTime = AudioSettings.dspTime;
 
-        // clean reset when movement starts
+        // Clean reset when movement starts
         if (!wasMovingLastFrame)
         {
             nextStepTime = dspTime;
@@ -118,14 +118,5 @@ public class PlayerFootsteps : MonoBehaviour
             radius,
             enemyLayer
         );
-
-        foreach (var hit in hits)
-        {
-            EnemyHearing enemy = hit.GetComponentInParent<EnemyHearing>();
-            if (enemy != null)
-            {
-                enemy.HearNoise(transform.position, radius);
-            }
-        }
     }
 }

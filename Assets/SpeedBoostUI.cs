@@ -8,8 +8,8 @@ public class SpeedBoostUI : MonoBehaviour
     public Image boostIcon;
 
     [Header("Blink Settings")]
-    public float slowBlinkRate = 1.2f;   // seconds per blink (early)
-    public float fastBlinkRate = 0.15f;  // seconds per blink (near end)
+    public float slowBlinkRate = 1.2f; // seconds per blink (early)
+    public float fastBlinkRate = 0.15f; // seconds per blink (near end)
     public float blinkStartPercent = 0.4f; // start blinking at 40% remaining
 
     private Coroutine boostRoutine;
@@ -53,7 +53,7 @@ public class SpeedBoostUI : MonoBehaviour
         float blinkTimer = 0f;
         bool visible = true;
 
-        // show immediately, solid
+        // Immediately solid
         SetAlpha(1f);
 
         while (elapsed < duration)
@@ -62,13 +62,13 @@ public class SpeedBoostUI : MonoBehaviour
 
             float remainingPercent = 1f - (elapsed / duration);
 
-            // PHASE 1 — NO BLINKING
+            // No blinking
             if (remainingPercent > blinkStartPercent)
             {
                 SetAlpha(1f);
-                blinkTimer = 0f; // important: reset so blinking starts clean
+                blinkTimer = 0f; // Reset so blink starts smoothly
             }
-            // PHASE 2 — BLINKING
+            // Blinking
             else
             {
                 blinkTimer += Time.deltaTime;

@@ -13,6 +13,7 @@ public class BestTimesUI : MonoBehaviour
 
     public void Refresh()
     {
+        // For main menu specifically, show the best times when in Level Select panel
         level1BestText.text = GetBestTimeText("ApartmentV2");
         level2BestText.text = GetBestTimeText("HouseV2");
     }

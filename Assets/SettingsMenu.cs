@@ -43,10 +43,11 @@ public class SettingsMenu : MonoBehaviour
 
     public void ResetBestTimes()
     {
+        // Reset the best times achieved in both apartment and house scenes
         ResetLevelBest("ApartmentV2");
         ResetLevelBest("HouseV2");
 
-        PlayerPrefs.Save();
+        PlayerPrefs.Save(); // Save to player prefs
 
         if (bestTimesUI != null)
             bestTimesUI.Refresh();
@@ -54,6 +55,7 @@ public class SettingsMenu : MonoBehaviour
 
     private void ResetLevelBest(string levelName)
     {
+        // Reset best time if there exists best times already
         string key = $"BestTime_{levelName}";
         if (PlayerPrefs.HasKey(key))
             PlayerPrefs.DeleteKey(key);

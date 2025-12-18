@@ -12,8 +12,8 @@ public class MainMenu : MonoBehaviour
     public GameObject MainMenuUI;       // Main Menu UI
     public GameObject optionsMenu;      // Options menu for enabling/disabling
     public GameObject UIBlocker;        // Panel that is raycastable so it blocks button from being able to be pressed
-    public FadeIn fadeTransition;       // NEED TO ADD
-    public MenuMusic menuMusic;         // NEED TO ADD
+    public FadeIn fadeTransition;
+    public MenuMusic menuMusic;
 
     public void LevelSelect()
     {

@@ -5,7 +5,7 @@ public class GameStateManager : MonoBehaviour
     public static GameStateManager Instance;
 
     [Header("Camera")]
-    public MonoBehaviour cameraController;
+    public MonoBehaviour cameraController;  // Camera to lock
 
     public bool IsLocked { get; private set; }
 
@@ -23,18 +23,23 @@ public class GameStateManager : MonoBehaviour
 
     public void LockGame()
     {
-        if (IsLocked) return;
+        // If already locked, return
+        if (IsLocked)
+            return;
 
+        // Lock game
         IsLocked = true;
         Time.timeScale = 0f;
 
         if (cameraController != null)
-            cameraController.enabled = false;
+            cameraController.enabled = false; // Cannot move
 
+        // Show cursor
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
+    // When out of menu, unlock
     public void UnlockGame()
     {
         IsLocked = false;

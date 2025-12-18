@@ -26,7 +26,7 @@ public class escapeTrigger : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
-            GameManager.Instance.WinGame();
+            GameManager.Instance.WinGame(); // If the escape trigger reads a player inside of the collider, instantiate a win condition through the gamemanager
         }
     }
 }

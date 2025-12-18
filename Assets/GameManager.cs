@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     public AudioClip hohohoSFX;
 
     [Header("Escape Triggers")]
-    public List<escapeTrigger> escapeTriggers = new List<escapeTrigger>();
+    public List<escapeTrigger> escapeTriggers = new List<escapeTrigger>(); // List of escape triggers as there may be more than 1 in a level (like level 2)
 
     private float levelTimer = 0f;
     private bool timerRunning = false;
@@ -55,7 +55,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        UpdateGiftText();
+        UpdateGiftText(); // Update the tree count to be 0/n at start
         timerRunning = true;
     }
 
@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
         if (timerRunning)
         {
             levelTimer += Time.deltaTime;
-            hudTimerText.text = FormatTime(levelTimer);
+            hudTimerText.text = FormatTime(levelTimer); // Continuously update the timer
         }
 
         if (lostGame)
@@ -73,6 +73,7 @@ public class GameManager : MonoBehaviour
 
     public void RegisterTree()
     {
+        // Count amount of trees in the level
         totalTrees++;
         UpdateGiftText();
     }
@@ -93,8 +94,6 @@ public class GameManager : MonoBehaviour
 
     private void EnableAllEscapes()
     {
-        Debug.Log($"Enabling {escapeTriggers.Count} escape triggers");
-
         foreach (var trigger in escapeTriggers)
         {
             if (trigger != null)

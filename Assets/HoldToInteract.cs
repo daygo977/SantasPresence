@@ -66,7 +66,6 @@ public class HoldToInteract : MonoBehaviour
         playerInside = false;
 
         GameManager.Instance.PlantGift();
-        Debug.Log("Tree planted!");
 
         PlayPlantSound();
         EmitPlantNoise();
@@ -87,15 +86,6 @@ public class HoldToInteract : MonoBehaviour
             plantNoiseRadius,
             enemyLayer
         );
-
-        foreach (var hit in hits)
-        {
-            EnemyHearing enemy = hit.GetComponentInParent<EnemyHearing>();
-            if (enemy != null)
-            {
-                enemy.HearNoise(transform.position, plantNoiseRadius);
-            }
-        }
     }
 
     private void OnTriggerEnter(Collider other)
