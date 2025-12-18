@@ -1,7 +1,7 @@
 Santa's Presence: A 3D Unity game in which Santa must deliver presents without getting caught (sneak/stealth).
 
 Credits:
-- Diego Morales: Assigned Fog feature, Game over screen and Lose condition, Enemey roaming/behavior
+- Diego Morales: Game over screen and Lose condition, Enemey roaming/behavior
 - Justin Ogden: Menus (main, pause, options menu), and SFX and music, gamplay, and Enemey roaming/behavior.
 - Chiewant Reat: Player and Camera features
 - Kriztian Serraon: Art and Map design
